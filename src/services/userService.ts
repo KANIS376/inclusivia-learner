@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase, isUsingMockData } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
 export interface UserProfile {
@@ -29,7 +29,104 @@ export interface Achievement {
   date_earned: string;
 }
 
+// Mock data for when Supabase credentials are not available
+const MOCK_PROFILE: UserProfile = {
+  id: "mock-user-id",
+  first_name: "Demo",
+  last_name: "User",
+  email: "demo@example.com",
+  avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=demo",
+  bio: "This is a demo account using mock data.",
+  created_at: new Date().toISOString()
+};
+
+const MOCK_COURSES: Course[] = [
+  {
+    id: "mock-course-1",
+    title: "Algebra Fundamentals",
+    description: "Learn the basics of algebra",
+    image_url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+    progress: 68,
+    last_accessed: "2 days ago",
+  },
+  {
+    id: "mock-course-2",
+    title: "Introduction to Coding",
+    description: "Start your coding journey",
+    image_url: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+    progress: 42,
+    last_accessed: "Yesterday",
+  },
+  {
+    id: "mock-course-3",
+    title: "English Literature",
+    description: "Explore classic literature",
+    image_url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+    progress: 89,
+    last_accessed: "Today",
+  },
+];
+
+const MOCK_ACHIEVEMENTS: Achievement[] = [
+  {
+    id: "mock-achievement-1",
+    name: "Fast Learner",
+    description: "Completed 5 lessons in one day",
+    icon: "award",
+    date_earned: new Date().toISOString(),
+  },
+  {
+    id: "mock-achievement-2",
+    name: "Perfect Score",
+    description: "Got 100% in a quiz",
+    icon: "star",
+    date_earned: new Date().toISOString(),
+  },
+  {
+    id: "mock-achievement-3",
+    name: "Consistent",
+    description: "Studied for 7 days in a row",
+    icon: "trophy",
+    date_earned: new Date().toISOString(),
+  },
+];
+
+const MOCK_LESSONS = [
+  {
+    id: "mock-lesson-1",
+    title: "Quadratic Equations",
+    subject: "Mathematics",
+    scheduled_time: "Today, 3:00 PM",
+    progress: 0,
+  },
+  {
+    id: "mock-lesson-2",
+    title: "Forces and Motion",
+    subject: "Physics",
+    scheduled_time: "Tomorrow, 10:00 AM",
+    progress: 0,
+  },
+  {
+    id: "mock-lesson-3",
+    title: "Cell Structure",
+    subject: "Biology",
+    scheduled_time: "Wed, 2:00 PM",
+    progress: 0,
+  },
+];
+
+const MOCK_STATS = {
+  courses_enrolled: 5,
+  lessons_completed: 32,
+  hours_spent: 48,
+  average_score: 92,
+};
+
 export const getUserProfile = async (user: User): Promise<UserProfile | null> => {
+  if (isUsingMockData) {
+    return MOCK_PROFILE;
+  }
+
   try {
     const { data, error } = await supabase
       .from('profiles')
@@ -47,6 +144,10 @@ export const getUserProfile = async (user: User): Promise<UserProfile | null> =>
 };
 
 export const getEnrolledCourses = async (userId: string): Promise<Course[]> => {
+  if (isUsingMockData) {
+    return MOCK_COURSES;
+  }
+
   try {
     const { data, error } = await supabase
       .from('enrolled_courses')
@@ -80,6 +181,10 @@ export const getEnrolledCourses = async (userId: string): Promise<Course[]> => {
 };
 
 export const getUserAchievements = async (userId: string): Promise<Achievement[]> => {
+  if (isUsingMockData) {
+    return MOCK_ACHIEVEMENTS;
+  }
+
   try {
     const { data, error } = await supabase
       .from('user_achievements')
@@ -111,6 +216,10 @@ export const getUserAchievements = async (userId: string): Promise<Achievement[]
 };
 
 export const getUpcomingLessons = async (userId: string) => {
+  if (isUsingMockData) {
+    return MOCK_LESSONS;
+  }
+
   try {
     const { data, error } = await supabase
       .from('scheduled_lessons')
@@ -135,6 +244,10 @@ export const getUpcomingLessons = async (userId: string) => {
 };
 
 export const getUserStats = async (userId: string) => {
+  if (isUsingMockData) {
+    return MOCK_STATS;
+  }
+
   try {
     const { data, error } = await supabase
       .from('user_stats')
