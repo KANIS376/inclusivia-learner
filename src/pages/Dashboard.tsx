@@ -1,77 +1,163 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "../components/Layout/Layout";
 import AIAssistant from "../components/AI/AIAssistant";
 import { 
   BookOpen, Clock, Star, Award, BarChart3, Calendar, 
-  BookMarked, Trophy, Users, ChevronRight, Download 
+  BookMarked, Trophy, Users, ChevronRight, Download, LogOut
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  getEnrolledCourses, 
+  getUserAchievements, 
+  getUpcomingLessons, 
+  getUserStats,
+  Course,
+  Achievement
+} from "@/services/userService";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Dashboard: React.FC = () => {
+  const { user, signOut } = useAuth();
+  const userId = user?.id || '';
+
+  // Fetch enrolled courses
+  const { data: enrolledCourses = [] } = useQuery({
+    queryKey: ['enrolledCourses', userId],
+    queryFn: () => getEnrolledCourses(userId),
+    enabled: !!userId,
+  });
+
+  // Fetch user achievements
+  const { data: achievements = [] } = useQuery({
+    queryKey: ['achievements', userId],
+    queryFn: () => getUserAchievements(userId),
+    enabled: !!userId,
+  });
+
+  // Fetch upcoming lessons
+  const { data: upcomingLessons = [] } = useQuery({
+    queryKey: ['upcomingLessons', userId],
+    queryFn: () => getUpcomingLessons(userId),
+    enabled: !!userId,
+  });
+
+  // Fetch user stats
+  const { data: userStats } = useQuery({
+    queryKey: ['userStats', userId],
+    queryFn: () => getUserStats(userId),
+    enabled: !!userId,
+  });
+
+  // Mock data as fallback when actual data is not available yet
+  const inProgressCourses: Course[] = enrolledCourses.length > 0 ? enrolledCourses : [
+    {
+      id: "1",
+      title: "Algebra Fundamentals",
+      description: "Learn the basics of algebra",
+      image_url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      progress: 68,
+      last_accessed: "2 days ago",
+    },
+    {
+      id: "2",
+      title: "Introduction to Coding",
+      description: "Start your coding journey",
+      image_url: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      progress: 42,
+      last_accessed: "Yesterday",
+    },
+    {
+      id: "3",
+      title: "English Literature",
+      description: "Explore classic literature",
+      image_url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      progress: 89,
+      last_accessed: "Today",
+    },
+  ];
+
+  const userAchievements: Achievement[] = achievements.length > 0 ? achievements : [
+    {
+      id: "1",
+      name: "Fast Learner",
+      description: "Completed 5 lessons in one day",
+      icon: "award",
+      date_earned: new Date().toISOString(),
+    },
+    {
+      id: "2",
+      name: "Perfect Score",
+      description: "Got 100% in a quiz",
+      icon: "star",
+      date_earned: new Date().toISOString(),
+    },
+    {
+      id: "3",
+      name: "Consistent",
+      description: "Studied for 7 days in a row",
+      icon: "trophy",
+      date_earned: new Date().toISOString(),
+    },
+  ];
+
+  const scheduledLessons = upcomingLessons.length > 0 ? upcomingLessons : [
+    {
+      id: "1",
+      title: "Quadratic Equations",
+      subject: "Mathematics",
+      scheduled_time: "Today, 3:00 PM",
+      progress: 0,
+    },
+    {
+      id: "2",
+      title: "Forces and Motion",
+      subject: "Physics",
+      scheduled_time: "Tomorrow, 10:00 AM",
+      progress: 0,
+    },
+    {
+      id: "3",
+      title: "Cell Structure",
+      subject: "Biology",
+      scheduled_time: "Wed, 2:00 PM",
+      progress: 0,
+    },
+  ];
+
+  const stats = userStats || {
+    courses_enrolled: 5,
+    lessons_completed: 32,
+    hours_spent: 48,
+    average_score: 92,
+  };
+
+  // Render the icon based on the icon name string
+  const renderIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'award':
+        return <Award className="h-5 w-5" />;
+      case 'star':
+        return <Star className="h-5 w-5" />;
+      case 'trophy':
+        return <Trophy className="h-5 w-5" />;
+      default:
+        return <Award className="h-5 w-5" />;
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const upcomingLessons = [
-    {
-      title: "Quadratic Equations",
-      subject: "Mathematics",
-      time: "Today, 3:00 PM",
-      progress: 0,
-    },
-    {
-      title: "Forces and Motion",
-      subject: "Physics",
-      time: "Tomorrow, 10:00 AM",
-      progress: 0,
-    },
-    {
-      title: "Cell Structure",
-      subject: "Biology",
-      time: "Wed, 2:00 PM",
-      progress: 0,
-    },
-  ];
+  const handleLogout = async () => {
+    await signOut();
+  };
 
-  const inProgressCourses = [
-    {
-      title: "Algebra Fundamentals",
-      progress: 68,
-      lastAccessed: "2 days ago",
-      image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      title: "Introduction to Coding",
-      progress: 42,
-      lastAccessed: "Yesterday",
-      image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      title: "English Literature",
-      progress: 89,
-      lastAccessed: "Today",
-      image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
-    },
-  ];
-
-  const achievements = [
-    {
-      name: "Fast Learner",
-      description: "Completed 5 lessons in one day",
-      icon: <Award className="h-5 w-5" />,
-    },
-    {
-      name: "Perfect Score",
-      description: "Got 100% in a quiz",
-      icon: <Star className="h-5 w-5" />,
-    },
-    {
-      name: "Consistent",
-      description: "Studied for 7 days in a row",
-      icon: <Trophy className="h-5 w-5" />,
-    },
-  ];
+  const userInitials = user?.user_metadata?.first_name?.[0] + user?.user_metadata?.last_name?.[0] || 'U';
 
   return (
     <Layout>
@@ -79,9 +165,17 @@ const Dashboard: React.FC = () => {
       <div className="bg-accent/30 pt-8 pb-12 md:pt-12 md:pb-16">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Student Dashboard</h1>
-              <p className="text-muted-foreground">Track your progress and continue learning</p>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-12 w-12 border-2 border-primary/20">
+                <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.first_name || 'User'} />
+                <AvatarFallback>{userInitials}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                  Hello, {user?.user_metadata?.first_name || 'Student'}
+                </h1>
+                <p className="text-muted-foreground">Welcome to your learning dashboard</p>
+              </div>
             </div>
             <div className="flex space-x-4">
               <button className="px-4 py-2 rounded-full border border-input hover:bg-accent/50 transition-colors inline-flex items-center text-sm font-medium">
@@ -92,6 +186,15 @@ const Dashboard: React.FC = () => {
                 <Download className="mr-2 h-4 w-4" />
                 Download Progress
               </button>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="rounded-full" 
+                onClick={handleLogout}
+                title="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
@@ -105,28 +208,28 @@ const Dashboard: React.FC = () => {
             {[
               {
                 title: "Courses Enrolled",
-                value: "5",
+                value: stats.courses_enrolled.toString(),
                 icon: <BookMarked className="h-5 w-5 text-emerald-500" />,
                 trend: "+2 this month",
                 trendUp: true,
               },
               {
                 title: "Lessons Completed",
-                value: "32",
+                value: stats.lessons_completed.toString(),
                 icon: <BookOpen className="h-5 w-5 text-blue-500" />,
                 trend: "+12 this month",
                 trendUp: true,
               },
               {
                 title: "Hours Spent",
-                value: "48",
+                value: stats.hours_spent.toString(),
                 icon: <Clock className="h-5 w-5 text-purple-500" />,
                 trend: "+5 this week",
                 trendUp: true,
               },
               {
                 title: "Average Score",
-                value: "92%",
+                value: `${stats.average_score}%`,
                 icon: <BarChart3 className="h-5 w-5 text-amber-500" />,
                 trend: "+3% this month",
                 trendUp: true,
@@ -156,7 +259,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">In Progress</h2>
                 <Link
-                  to="#"
+                  to="/learn"
                   className="text-primary hover:text-primary/80 transition-colors inline-flex items-center text-sm font-medium"
                 >
                   View all
@@ -167,14 +270,14 @@ const Dashboard: React.FC = () => {
               <div className="space-y-4">
                 {inProgressCourses.map((course, index) => (
                   <Link 
-                    key={index} 
-                    to="#"
+                    key={course.id} 
+                    to={`/learn/${course.id}`}
                     className="glass rounded-xl overflow-hidden hover-lift"
                   >
                     <div className="flex flex-col sm:flex-row">
                       <div className="sm:w-1/3 aspect-video sm:aspect-square">
                         <img
-                          src={course.image}
+                          src={course.image_url}
                           alt={course.title}
                           className="w-full h-full object-cover"
                         />
@@ -195,7 +298,7 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-xs text-muted-foreground">
-                            Last accessed {course.lastAccessed}
+                            Last accessed {course.last_accessed}
                           </span>
                           <button className="text-primary hover:text-primary/80 transition-colors text-sm font-medium">
                             Continue
@@ -220,15 +323,15 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {upcomingLessons.map((lesson, index) => (
-                    <div key={index} className="p-3 rounded-lg hover:bg-accent/40 transition-colors">
+                  {scheduledLessons.map((lesson) => (
+                    <div key={lesson.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors">
                       <h3 className="font-medium mb-1">{lesson.title}</h3>
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-muted-foreground">
                           {lesson.subject}
                         </span>
                         <span className="text-xs font-medium">
-                          {lesson.time}
+                          {lesson.scheduled_time}
                         </span>
                       </div>
                     </div>
@@ -246,10 +349,10 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {achievements.map((achievement, index) => (
-                    <div key={index} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
+                  {userAchievements.map((achievement) => (
+                    <div key={achievement.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        {achievement.icon}
+                        {renderIcon(achievement.icon)}
                       </div>
                       <div>
                         <h3 className="font-medium">{achievement.name}</h3>

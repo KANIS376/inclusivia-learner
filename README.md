@@ -1,69 +1,73 @@
-# Welcome to your Lovable project
 
-## Project info
+# AI-Driven Universal Learning Platform
 
-**URL**: https://lovable.dev/projects/d1ee0c32-7c71-4ead-bb1d-c3fa3b1e4301
+A comprehensive platform that provides equal learning opportunities for all students by integrating AI technologies for education.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Personalized Learning Path**: Adapts based on student's skill level
+- **AI-Powered Learning Assistance**: Natural, conversational learning support
+- **Multi-Language Support**: Content accessibility in various languages
+- **Gamified Learning Experience**: Points, badges, and leaderboards
+- **Offline Learning Support**: Access content without internet
+- **Inclusive Features**: Visual aids, audio support, and interactive simulations
+- **AI-Based Career Guidance**: Personalized career path suggestions
+- **AI-Powered Exam Evaluation**: Detailed feedback on assessments
+- **Virtual Peer-to-Peer Learning**: Connect with students from different regions
 
-**Use Lovable**
+## Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d1ee0c32-7c71-4ead-bb1d-c3fa3b1e4301) and start prompting.
+- **Frontend**: React, TypeScript, Tailwind CSS, Shadcn UI
+- **Backend**: Supabase (Authentication, Database, Storage)
+- **State Management**: React Query
+- **Deployment**: Lovable Platform
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js 16+ 
+- Supabase account (for backend functionality)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Setup Instructions
 
-Follow these steps:
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a Supabase project
+4. Run the SQL from `supabase/schema.sql` in the Supabase SQL editor
+5. Set up environment variables:
+   ```
+   VITE_SUPABASE_URL=your-supabase-project-url
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
+6. Start the development server: `npm run dev`
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Authentication Flow
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+The application uses Supabase Authentication with:
+- Email/password signup and login
+- Profile creation on user registration
+- Protected routes for authenticated content
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Database Structure
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- **profiles**: User profile information
+- **courses**: Available courses
+- **enrolled_courses**: Tracks user enrollment and progress
+- **lessons**: Course content
+- **scheduled_lessons**: Upcoming lessons for users
+- **achievements**: Available achievements
+- **user_achievements**: Tracks earned achievements
+- **user_stats**: User statistics and progress metrics
 
-**Edit a file directly in GitHub**
+## Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Submit a pull request
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/d1ee0c32-7c71-4ead-bb1d-c3fa3b1e4301) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is licensed under the MIT License - see the LICENSE file for details.
