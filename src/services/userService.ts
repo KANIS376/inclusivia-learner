@@ -166,7 +166,7 @@ export const getEnrolledCourses = async (userId: string): Promise<Course[]> => {
     if (error) throw error;
     
     // Transform the data to match the Course interface
-    return (data || []).map((enrollment) => ({
+    return data.map((enrollment: any) => ({
       id: enrollment.courses.id,
       title: enrollment.courses.title,
       description: enrollment.courses.description,
@@ -202,7 +202,7 @@ export const getUserAchievements = async (userId: string): Promise<Achievement[]
     if (error) throw error;
     
     // Transform the data to match the Achievement interface
-    return (data || []).map((userAchievement) => ({
+    return data.map((userAchievement: any) => ({
       id: userAchievement.achievements.id,
       name: userAchievement.achievements.name,
       description: userAchievement.achievements.description,
