@@ -1,11 +1,13 @@
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout/Layout";
 import AIAssistant from "../components/AI/AIAssistant";
 import { Search, BookOpen, Clock, Star, Filter, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Learn: React.FC = () => {
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -19,7 +21,7 @@ const Learn: React.FC = () => {
     { name: "Arts & Music", courses: 12, icon: "🎨" },
   ];
 
-  const courses = [
+  const allCourses = [
     {
       title: "Introduction to Algebra",
       description: "Learn the fundamentals of algebra with interactive examples.",
@@ -28,6 +30,8 @@ const Learn: React.FC = () => {
       rating: 4.8,
       students: 2345,
       image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      isFree: false,
+      hasCertificate: true,
     },
     {
       title: "Physics: Forces & Motion",
@@ -37,6 +41,8 @@ const Learn: React.FC = () => {
       rating: 4.7,
       students: 1823,
       image: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      isFree: false,
+      hasCertificate: true,
     },
     {
       title: "English Literature",
@@ -46,6 +52,8 @@ const Learn: React.FC = () => {
       rating: 4.9,
       students: 3056,
       image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      isFree: true,
+      hasCertificate: false,
     },
     {
       title: "Introduction to Coding",
@@ -55,6 +63,8 @@ const Learn: React.FC = () => {
       rating: 4.6,
       students: 4127,
       image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      isFree: true,
+      hasCertificate: false,
     },
     {
       title: "Chemistry Essentials",
@@ -64,6 +74,8 @@ const Learn: React.FC = () => {
       rating: 4.7,
       students: 1649,
       image: "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      isFree: false,
+      hasCertificate: true,
     },
     {
       title: "World History",
@@ -73,12 +85,44 @@ const Learn: React.FC = () => {
       rating: 4.8,
       students: 2187,
       image: "https://images.unsplash.com/photo-1461360228754-6e81c478b882?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+      isFree: false,
+      hasCertificate: true,
     },
   ];
 
+  const courses = React.useMemo(() => {
+    if (!activeFilter) return allCourses;
+    
+    switch (activeFilter) {
+      case "Beginner":
+        return allCourses.filter(course => course.level === "Beginner");
+      case "Intermediate":
+        return allCourses.filter(course => course.level === "Intermediate");
+      case "Advanced":
+        return allCourses.filter(course => course.level === "Advanced");
+      case "Free":
+        return allCourses.filter(course => course.isFree);
+      case "Certificate":
+        return allCourses.filter(course => course.hasCertificate);
+      default:
+        return allCourses;
+    }
+  }, [activeFilter, allCourses]);
+
+  const handleFilterClick = (filter: string) => {
+    if (activeFilter === filter) {
+      setActiveFilter(null);
+    } else {
+      setActiveFilter(filter);
+    }
+  };
+
+  const handleResetFilters = () => {
+    setActiveFilter(null);
+  };
+
   return (
     <Layout>
-      {/* Header Section */}
       <section className="pt-8 pb-12 md:pt-12 md:pb-16 bg-accent/30">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -98,25 +142,37 @@ const Learn: React.FC = () => {
             </div>
           </div>
           
-          {/* Filters */}
           <div className="mt-8 flex flex-wrap gap-3">
-            <button className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm">
+            <Button
+              variant="outline"
+              className={`inline-flex items-center px-4 py-2 rounded-full ${
+                activeFilter === null 
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "bg-primary/10 text-primary hover:bg-primary/20"
+              } transition-colors text-sm`}
+              onClick={handleResetFilters}
+            >
               <Filter className="mr-2 h-4 w-4" />
               All Filters
-            </button>
+            </Button>
             {["Beginner", "Intermediate", "Advanced", "Free", "Certificate"].map((filter, index) => (
-              <button
+              <Button
                 key={index}
-                className="px-4 py-2 rounded-full bg-background border border-input hover:bg-accent/50 transition-colors text-sm"
+                variant="outline"
+                className={`px-4 py-2 rounded-full ${
+                  activeFilter === filter 
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "bg-background border border-input hover:bg-accent/50"
+                } transition-colors text-sm`}
+                onClick={() => handleFilterClick(filter)}
               >
                 {filter}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
       </section>
       
-      {/* Subject Categories */}
       <section className="py-12">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl font-bold mb-8">Browse by Subject</h2>
@@ -136,7 +192,6 @@ const Learn: React.FC = () => {
         </div>
       </section>
       
-      {/* Featured Courses */}
       <section className="py-12">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between mb-8">
@@ -196,7 +251,6 @@ const Learn: React.FC = () => {
         </div>
       </section>
       
-      {/* Personalized Learning */}
       <section className="py-12 bg-accent/30">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6">
           <div className="glass rounded-2xl overflow-hidden">
