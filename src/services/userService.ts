@@ -1,4 +1,3 @@
-
 import { supabase, isUsingMockData } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
@@ -29,7 +28,7 @@ export interface Achievement {
   date_earned: string;
 }
 
-// Mock data for when Supabase credentials are not available
+// Mock data for when Supabase credentials are not available or in development environments
 const MOCK_PROFILE: UserProfile = {
   id: "mock-user-id",
   first_name: "Demo",
@@ -152,14 +151,16 @@ export const getEnrolledCourses = async (userId: string): Promise<Course[]> => {
     const { data, error } = await supabase
       .from('enrolled_courses')
       .select(`
+        id,
+        progress,
+        last_accessed,
+        course_id,
         courses (
           id,
           title,
           description,
           image_url
-        ),
-        progress,
-        last_accessed
+        )
       `)
       .eq('user_id', userId);
     

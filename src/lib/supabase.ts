@@ -1,21 +1,11 @@
 
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
-// Get environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Helper to check if we're in development mode
+export const isDevelopment = import.meta.env.DEV;
 
-// Check if credentials are available, use placeholders if not
-const url = supabaseUrl || 'https://placeholder-url.supabase.co';
-const key = supabaseAnonKey || 'placeholder-key';
+// Export the supabase client
+export { supabase };
 
-// Log warning if credentials are missing
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase credentials. Using mock data instead.');
-}
-
-// Create and export the Supabase client
-export const supabase = createClient(url, key);
-
-// Helper to check if we're using real or mock data
-export const isUsingMockData = !supabaseUrl || !supabaseAnonKey;
+// The application is now using a real Supabase instance, not mock data
+export const isUsingMockData = false;
