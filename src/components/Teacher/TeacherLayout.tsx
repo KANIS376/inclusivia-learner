@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { 
@@ -9,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const TeacherLayout: React.FC = () => {
   const [collapsed, setCollapsed] = React.useState(false);
@@ -18,7 +17,7 @@ const TeacherLayout: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   const handleSignOut = async () => {
     try {
@@ -90,7 +89,6 @@ const TeacherLayout: React.FC = () => {
     },
   ];
   
-  // Handle mobile view by auto-collapsing sidebar
   React.useEffect(() => {
     if (isMobile) {
       setCollapsed(true);
@@ -99,7 +97,6 @@ const TeacherLayout: React.FC = () => {
   
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
       <aside 
         className={`bg-card text-card-foreground shadow transition-all duration-300 flex flex-col ${
           collapsed ? 'w-16' : 'w-64'
@@ -199,9 +196,7 @@ const TeacherLayout: React.FC = () => {
         </div>
       </aside>
       
-      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Main content area where child components will be rendered */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>

@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { 
   Award, Filter, Search, Trophy, 
-  Medal, Bookmark, ArrowUpDown, Activity 
+  Medal, Bookmark, ArrowUpDown, Activity,
+  Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -30,7 +30,6 @@ interface Student {
   };
 }
 
-// Mock data
 const mockStudents: Student[] = [
   {
     id: '1',
@@ -209,24 +208,20 @@ const LeaderboardComponent: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [currentTab, setCurrentTab] = useState('overall');
   
-  // Filter students based on search query and selected subject
   const getFilteredStudents = () => {
     let filtered = [...mockStudents];
     
-    // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(student => 
         student.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     
-    // Filter and sort based on current tab and subject
     if (currentTab === 'subjects' && selectedSubject !== 'all') {
       filtered = filtered.sort((a, b) => 
         (b.subjects[selectedSubject] || 0) - (a.subjects[selectedSubject] || 0)
       );
     } else {
-      // Default sort by total points
       filtered = filtered.sort((a, b) => b.totalPoints - a.totalPoints);
     }
     
@@ -250,7 +245,6 @@ const LeaderboardComponent: React.FC = () => {
     return <div className="text-muted-foreground flex items-center"><ArrowUpDown className="h-4 w-4 mr-1" />0</div>;
   };
   
-  // Get top 3 students for podium
   const topThreeStudents = [...mockStudents].sort((a, b) => b.totalPoints - a.totalPoints).slice(0, 3);
   
   return (
@@ -262,9 +256,7 @@ const LeaderboardComponent: React.FC = () => {
         </p>
       </div>
       
-      {/* Podium for top 3 students */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {/* Second Place */}
         <Card className="hover-lift text-center md:mt-6">
           <CardContent className="pt-6">
             <div className="mb-3">
@@ -288,7 +280,6 @@ const LeaderboardComponent: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* First Place */}
         <Card className="hover-lift text-center bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700">
           <CardContent className="pt-6">
             <div className="mb-3">
@@ -312,7 +303,6 @@ const LeaderboardComponent: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Third Place */}
         <Card className="hover-lift text-center md:mt-12">
           <CardContent className="pt-6">
             <div className="mb-3">

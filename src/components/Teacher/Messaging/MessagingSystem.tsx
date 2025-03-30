@@ -1,8 +1,7 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Search, Send, Paperclip, MoreVertical, Phone, 
-  Video, Users, ChevronLeft, User, Clock 
+  Video, Users, ChevronLeft, User, Clock, MessageSquare
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Message {
   id: string;
@@ -49,7 +48,8 @@ const mockUser = {
   id: 'teacher-1',
   name: 'Alex Morgan',
   avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80',
-  role: 'teacher'
+  isOnline: true,
+  role: 'teacher' as const
 };
 
 const mockConversations: Conversation[] = [
@@ -259,10 +259,9 @@ const MessagingSystem: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isMobileConversationOpen, setIsMobileConversationOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   useEffect(() => {
-    // Auto-scroll to the bottom of the messages on load or when new messages are added
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [selectedConversation?.messages]);
   
@@ -280,7 +279,6 @@ const MessagingSystem: React.FC = () => {
       setIsMobileConversationOpen(true);
     }
     
-    // Mark messages as read
     if (conversation.unreadCount > 0) {
       const updatedConversations = conversations.map(conv => {
         if (conv.id === conversation.id) {
@@ -327,7 +325,6 @@ const MessagingSystem: React.FC = () => {
     setConversations(updatedConversations);
     setMessage('');
     
-    // Update the selected conversation
     setSelectedConversation(prev => {
       if (!prev) return null;
       return {
@@ -380,7 +377,6 @@ const MessagingSystem: React.FC = () => {
       
       <div className="h-[calc(100vh-250px)] border rounded-lg overflow-hidden">
         <div className="grid h-full" style={{ gridTemplateColumns: isMobile ? '1fr' : '350px 1fr' }}>
-          {/* Conversation list - hidden on mobile when a conversation is open */}
           {(!isMobile || !isMobileConversationOpen) && (
             <div className="border-r">
               <div className="p-3 border-b">
@@ -470,12 +466,10 @@ const MessagingSystem: React.FC = () => {
             </div>
           )}
           
-          {/* Conversation/Message area */}
           {(!isMobile || isMobileConversationOpen) && (
             <div className="flex flex-col h-full">
               {selectedConversation ? (
                 <>
-                  {/* Conversation header */}
                   <div className="p-3 border-b flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       {isMobile && (
@@ -549,7 +543,6 @@ const MessagingSystem: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* Messages */}
                   <ScrollArea className="flex-1 p-4">
                     <div className="space-y-4">
                       {selectedConversation.messages.map((message) => {
@@ -610,7 +603,6 @@ const MessagingSystem: React.FC = () => {
                     </div>
                   </ScrollArea>
                   
-                  {/* Message input */}
                   <div className="p-3 border-t">
                     <div className="flex items-center space-x-2">
                       <Button variant="ghost" size="icon">
