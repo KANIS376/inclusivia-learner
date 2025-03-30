@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast({
           title: "Using Mock Data",
           description: "Set up Supabase credentials to enable real authentication.",
-          variant: "warning"
+          variant: "default"
         });
         
         // Simulate successful login with mock data
@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast({
           title: "Using Mock Data",
           description: "Set up Supabase credentials to enable real registration.",
-          variant: "warning"
+          variant: "default"
         });
         
         // Simulate successful registration with mock data

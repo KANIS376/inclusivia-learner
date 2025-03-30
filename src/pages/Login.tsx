@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { InfoIcon } from "lucide-react";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -56,7 +56,7 @@ const Login: React.FC = () => {
           
           {usingMockData && (
             <Alert className="mb-6">
-              <InfoCircledIcon className="h-4 w-4" />
+              <InfoIcon className="h-4 w-4" />
               <AlertTitle>Demo Mode</AlertTitle>
               <AlertDescription>
                 You're using mock data. To set up real authentication, add Supabase credentials.
