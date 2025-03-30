@@ -1,16 +1,21 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Default to empty strings but with mock data functionality
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-url.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
+// Get environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Log warning instead of error to prevent app crash
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+// Check if credentials are available, use placeholders if not
+const url = supabaseUrl || 'https://placeholder-url.supabase.co';
+const key = supabaseAnonKey || 'placeholder-key';
+
+// Log warning if credentials are missing
+if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase credentials. Using mock data instead.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create and export the Supabase client
+export const supabase = createClient(url, key);
 
 // Helper to check if we're using real or mock data
-export const isUsingMockData = !import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY;
+export const isUsingMockData = !supabaseUrl || !supabaseAnonKey;

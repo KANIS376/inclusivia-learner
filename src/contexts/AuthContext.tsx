@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase, isUsingMockData } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 type AuthContextType = {
@@ -11,6 +11,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  usingMockData: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +45,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
+      
+      if (isUsingMockData) {
+        toast({
+          title: "Using Mock Data",
+          description: "Set up Supabase credentials to enable real authentication.",
+          variant: "warning"
+        });
+        
+        // Simulate successful login with mock data
+        setTimeout(() => {
+          setLoading(false);
+          toast({
+            title: "Mock Login Successful",
+            description: "Logged in with mock data"
+          });
+        }, 1000);
+        
+        return;
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
@@ -69,6 +90,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       setLoading(true);
+      
+      if (isUsingMockData) {
+        toast({
+          title: "Using Mock Data",
+          description: "Set up Supabase credentials to enable real registration.",
+          variant: "warning"
+        });
+        
+        // Simulate successful registration with mock data
+        setTimeout(() => {
+          setLoading(false);
+          toast({
+            title: "Mock Registration Successful",
+            description: "Registered with mock data"
+          });
+        }, 1000);
+        
+        return;
+      }
       
       // Create auth user
       const { error: signUpError } = await supabase.auth.signUp({ 
@@ -103,6 +143,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setLoading(true);
+      
+      if (isUsingMockData) {
+        // Simulate successful logout with mock data
+        setTimeout(() => {
+          setLoading(false);
+          toast({
+            title: "Mock Logout Successful",
+            description: "Logged out with mock data"
+          });
+        }, 500);
+        
+        return;
+      }
+      
       await supabase.auth.signOut();
       toast({
         title: "Logged out",
@@ -120,7 +174,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut,
+      usingMockData: isUsingMockData 
+    }}>
       {children}
     </AuthContext.Provider>
   );

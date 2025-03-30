@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
 
 const Signup: React.FC = () => {
   const [firstName, setFirstName] = useState("");
@@ -14,7 +16,7 @@ const Signup: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, usingMockData } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -61,6 +63,16 @@ const Signup: React.FC = () => {
               Start your personalized learning journey today
             </p>
           </div>
+          
+          {usingMockData && (
+            <Alert className="mb-6">
+              <InfoCircledIcon className="h-4 w-4" />
+              <AlertTitle>Demo Mode</AlertTitle>
+              <AlertDescription>
+                You're using mock data. To set up real authentication, add Supabase credentials.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="glass rounded-xl p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
