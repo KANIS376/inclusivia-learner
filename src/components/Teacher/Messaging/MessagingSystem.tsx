@@ -287,7 +287,7 @@ const MessagingSystem: React.FC = () => {
             unreadCount: 0,
             messages: conv.messages.map(msg => ({
               ...msg,
-              status: 'read'
+              status: 'read' as const
             }))
           };
         }
