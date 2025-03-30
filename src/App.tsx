@@ -14,6 +14,15 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import TeacherLayout from "./components/Teacher/TeacherLayout";
+import TeacherDashboardOverview from "./components/Teacher/Dashboard/TeacherDashboardOverview";
+import StudentsList from "./components/Teacher/Students/StudentsList";
+import AssignmentManager from "./components/Teacher/Assignments/AssignmentManager";
+import AIGradingSystem from "./components/Teacher/AIGrading/AIGradingSystem";
+import MessagingSystem from "./components/Teacher/Messaging/MessagingSystem";
+import LiveClassMonitoring from "./components/Teacher/LiveMonitoring/LiveClassMonitoring";
+import LeaderboardComponent from "./components/Teacher/Leaderboard/LeaderboardComponent";
+import CareerGuidanceSystem from "./components/Teacher/CareerGuidance/CareerGuidanceSystem";
 
 const queryClient = new QueryClient();
 
@@ -35,14 +44,26 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            
+            {/* Teacher Dashboard Routes */}
             <Route 
               path="/teacher" 
               element={
                 <ProtectedRoute>
-                  <TeacherDashboard />
+                  <TeacherLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<TeacherDashboardOverview />} />
+              <Route path="students" element={<StudentsList />} />
+              <Route path="assignments" element={<AssignmentManager />} />
+              <Route path="grading" element={<AIGradingSystem />} />
+              <Route path="messages" element={<MessagingSystem />} />
+              <Route path="live-monitoring" element={<LiveClassMonitoring />} />
+              <Route path="leaderboard" element={<LeaderboardComponent />} />
+              <Route path="career-guidance" element={<CareerGuidanceSystem />} />
+            </Route>
+            
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
