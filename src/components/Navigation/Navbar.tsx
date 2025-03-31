@@ -1,13 +1,26 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import LanguageSelector from "../Language/LanguageSelector";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut, loading } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +34,18 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const getInitials = () => {
+    if (!user || !user.user_metadata) return "U";
+    const firstName = user.user_metadata.first_name || "";
+    const lastName = user.user_metadata.last_name || "";
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
   
   return (
     <header 
@@ -55,18 +80,48 @@ const Navbar: React.FC = () => {
           {/* Right Side Items */}
           <div className="hidden md:flex items-center space-x-4">
             <LanguageSelector />
-            <Link 
-              to="/login" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Log in
-            </Link>
-            <Link 
-              to="/signup" 
-              className="text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full transition-colors"
-            >
-              Sign up
-            </Link>
+            
+            {!loading && (
+              user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar>
+                        <AvatarImage src={user.user_metadata?.avatar_url} />
+                        <AvatarFallback>{getInitials()}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link 
+                    to="/signup" 
+                    className="text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full transition-colors"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )
+            )}
           </div>
           
           {/* Mobile Menu Button */}
@@ -95,20 +150,57 @@ const Navbar: React.FC = () => {
           </div>
           <div className="px-4 py-4 space-y-4">
             <LanguageSelector />
-            <div className="flex flex-col space-y-2">
-              <Link 
-                to="/login" 
-                className="w-full text-center text-sm font-medium text-foreground px-4 py-2 rounded-full border transition-colors"
-              >
-                Log in
-              </Link>
-              <Link 
-                to="/signup" 
-                className="w-full text-center text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full transition-colors"
-              >
-                Sign up
-              </Link>
-            </div>
+            {!loading && (
+              <div className="flex flex-col space-y-2">
+                {user ? (
+                  <>
+                    <div className="flex items-center space-x-3 p-2 border rounded-lg">
+                      <Avatar>
+                        <AvatarImage src={user.user_metadata?.avatar_url} />
+                        <AvatarFallback>{getInitials()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {user.user_metadata?.first_name} {user.user_metadata?.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      onClick={() => navigate('/dashboard')}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      to="/login" 
+                      className="w-full text-center text-sm font-medium text-foreground px-4 py-2 rounded-full border transition-colors"
+                    >
+                      Log in
+                    </Link>
+                    <Link 
+                      to="/signup" 
+                      className="w-full text-center text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full transition-colors"
+                    >
+                      Sign up
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
