@@ -141,20 +141,13 @@ export const enrollInCourse = async (userId: string, courseId: string): Promise<
     
     if (error) throw error;
     
-    // Update user_stats to increment courses_enrolled
-    // Fix: The issue is here - we're not properly calling the RPC function
-    const { error: statsError } = await supabase
-      .from('user_stats')
-      .update({ 
-        courses_enrolled: supabase.rpc('increment', { x: 1 }).then(data => data) 
-      })
-      .eq('user_id', userId);
-    
-    // The correct way to call an RPC function and use its result
+    // First, get the incremented value from the RPC function
     const { data: incrementedValue, error: rpcError } = await supabase.rpc('increment', { x: 1 });
     
-    if (!rpcError && incrementedValue) {
-      // Now update with the returned value
+    if (rpcError) {
+      console.error('Error calling increment function:', rpcError);
+    } else if (incrementedValue !== null && incrementedValue !== undefined) {
+      // Then update the user stats with the returned numeric value
       const { error: updateError } = await supabase
         .from('user_stats')
         .update({ courses_enrolled: incrementedValue })
@@ -163,13 +156,6 @@ export const enrollInCourse = async (userId: string, courseId: string): Promise<
       if (updateError) {
         console.error('Error updating user stats with incremented value:', updateError);
       }
-    } else if (rpcError) {
-      console.error('Error calling increment function:', rpcError);
-    }
-    
-    if (statsError) {
-      console.error('Error updating user stats:', statsError);
-      // Continue even if stats update fails
     }
     
     return true;
