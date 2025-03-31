@@ -1,3 +1,4 @@
+
 import { supabase, isUsingMockData } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
@@ -138,6 +139,70 @@ export const getUserProfile = async (user: User): Promise<UserProfile | null> =>
     return data;
   } catch (error) {
     console.error('Error fetching user profile:', error);
+    return null;
+  }
+};
+
+export const updateUserProfile = async (userId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> => {
+  if (isUsingMockData) {
+    // Simulate successful update
+    const updatedProfile = { ...MOCK_PROFILE, ...updates };
+    return updatedProfile;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', userId)
+      .select('*')
+      .single();
+    
+    if (error) throw error;
+    
+    return data;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return null;
+  }
+};
+
+export const updateUserAvatar = async (userId: string, file: File): Promise<string | null> => {
+  if (isUsingMockData) {
+    // Just return a mock URL for demo purposes
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}`;
+  }
+
+  try {
+    // Upload the file to Supabase Storage
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}-avatar-${Date.now()}.${fileExt}`;
+    const filePath = `avatars/${fileName}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('user-avatars')
+      .upload(filePath, file);
+    
+    if (uploadError) throw uploadError;
+    
+    // Get the public URL for the uploaded file
+    const { data: urlData } = supabase.storage
+      .from('user-avatars')
+      .getPublicUrl(filePath);
+    
+    const avatarUrl = urlData.publicUrl;
+    
+    // Update the user's profile with the new avatar URL
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: avatarUrl })
+      .eq('id', userId);
+    
+    if (updateError) throw updateError;
+    
+    return avatarUrl;
+  } catch (error) {
+    console.error('Error updating user avatar:', error);
     return null;
   }
 };

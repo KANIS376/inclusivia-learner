@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import LanguageSelector from "../Language/LanguageSelector";
@@ -57,7 +56,6 @@ const Navbar: React.FC = () => {
     >
       <div className="container max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
           <Link 
             to="/" 
             className="flex items-center space-x-2"
@@ -68,7 +66,6 @@ const Navbar: React.FC = () => {
             <span className="font-semibold text-lg">Inclusivia</span>
           </Link>
           
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <NavLink to="/" label="Home" />
             <NavLink to="/learn" label="Learn" />
@@ -77,7 +74,6 @@ const Navbar: React.FC = () => {
             <NavLink to="/about" label="About" />
           </nav>
           
-          {/* Right Side Items */}
           <div className="hidden md:flex items-center space-x-4">
             <LanguageSelector />
             
@@ -124,7 +120,6 @@ const Navbar: React.FC = () => {
             )}
           </div>
           
-          {/* Mobile Menu Button */}
           <button 
             className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -138,7 +133,6 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       
-      {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden glass animate-slide-down">
           <div className="px-4 pt-2 pb-4 space-y-1 border-b">

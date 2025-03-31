@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "../components/Layout/Layout";
 import AIAssistant from "../components/AI/AIAssistant";
@@ -19,6 +19,7 @@ import {
 } from "@/services/userService";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ProfilePage from "@/components/Profile/ProfilePage";
 
 const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -203,6 +204,11 @@ const Dashboard: React.FC = () => {
       {/* Dashboard Content */}
       <div className="py-12">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Profile Section */}
+          <div className="mb-12">
+            <ProfilePage />
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {/* Stats Cards */}
             {[
