@@ -142,13 +142,14 @@ export const enrollInCourse = async (userId: string, courseId: string): Promise<
     
     if (error) throw error;
     
-    // First, get the incremented value from the RPC function
-    const { data: incrementedValue, error: rpcError } = await supabase.rpc('increment', { x: 1 });
+    // Get the incremented value from the RPC function
+    const { data: incrementedValue, error: rpcError } = await supabase
+      .rpc('increment', { x: 1 });
     
     if (rpcError) {
       console.error('Error calling increment function:', rpcError);
     } else if (incrementedValue !== null && incrementedValue !== undefined) {
-      // Then update the user stats with the returned numeric value
+      // Update the user stats with the returned numeric value
       const { error: updateError } = await supabase
         .from('user_stats')
         .update({ courses_enrolled: incrementedValue })
