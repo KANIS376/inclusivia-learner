@@ -5,7 +5,7 @@ import Layout from "../components/Layout/Layout";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Clock, Search, Filter, Star, ChevronRight } from "lucide-react";
+import { BookOpen, Clock, Search, Filter, Star, ChevronRight, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -80,7 +80,9 @@ const Courses: React.FC = () => {
     }
   };
 
-  const handleEnroll = async (courseId: string) => {
+  const handleEnroll = async (courseId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation to course detail
+    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -98,7 +100,7 @@ const Courses: React.FC = () => {
         description: "You have successfully enrolled in this course",
         variant: "default",
       });
-      // Redirect to dashboard or course page
+      // Redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
       console.error("Error enrolling in course:", error);
@@ -108,6 +110,10 @@ const Courses: React.FC = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleViewCourseDetails = (courseId: string) => {
+    navigate(`/courses/${courseId}`);
   };
 
   return (
@@ -181,7 +187,11 @@ const Courses: React.FC = () => {
           ) : filteredCourses.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses.map((course) => (
-                <Card key={course.id} className="hover-lift overflow-hidden h-full flex flex-col">
+                <Card 
+                  key={course.id} 
+                  className="hover-lift overflow-hidden h-full flex flex-col cursor-pointer transition-all hover:shadow-md"
+                  onClick={() => handleViewCourseDetails(course.id)}
+                >
                   <div className="aspect-video w-full overflow-hidden bg-accent">
                     {course.image_url ? (
                       <img
@@ -214,13 +224,22 @@ const Courses: React.FC = () => {
                       {course.description}
                     </p>
                   </CardContent>
-                  <CardFooter className="mt-auto">
+                  <CardFooter className="mt-auto flex gap-2">
                     <Button 
-                      className="w-full" 
-                      onClick={() => handleEnroll(course.id)}
+                      className="flex-1" 
+                      onClick={(e) => handleEnroll(course.id, e)}
                     >
                       Enroll Now
                       <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewCourseDetails(course.id);
+                      }}
+                    >
+                      <Info className="h-4 w-4" />
                     </Button>
                   </CardFooter>
                 </Card>
