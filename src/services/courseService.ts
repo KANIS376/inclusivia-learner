@@ -1,3 +1,4 @@
+
 import { supabase, isUsingMockData } from '@/lib/supabase';
 import type { CourseItem } from '@/pages/Courses';
 
