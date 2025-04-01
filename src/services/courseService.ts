@@ -1,6 +1,5 @@
-
 import { supabase, isUsingMockData } from '@/lib/supabase';
-import type { CourseItem } from '@/pages/Courses';
+import type { CourseItem } from '@/types/course';
 
 // Mock data for when Supabase credentials are not available or in development environments
 const MOCK_COURSES: CourseItem[] = [
