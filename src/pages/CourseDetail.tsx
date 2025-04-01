@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCourseById, enrollInCourse } from "@/services/courseService";
-import type { CourseItem } from "@/types/course";
+import type { CourseItem } from "@/types/course"; // Fixed import path for CourseItem
 
 // Component imports
 import CourseHeader from "@/components/CourseDetail/CourseHeader";
