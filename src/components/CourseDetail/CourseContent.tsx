@@ -1,7 +1,6 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import CourseOverview from "./CourseOverview";
 import CourseCurriculum from "./CourseCurriculum";
@@ -18,7 +17,7 @@ const CourseContent: React.FC<CourseContentProps> = ({ course }) => {
     <div className="py-12">
       <div className="container max-w-6xl mx-auto px-4">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="w-full flex justify-start space-x-2 bg-transparent p-0">
+          <TabsList className="w-full flex justify-start space-x-2 bg-transparent p-0 overflow-x-auto">
             <TabsTrigger value="overview" className="px-6 py-3 rounded-lg">
               Overview
             </TabsTrigger>
@@ -49,6 +48,31 @@ const CourseContent: React.FC<CourseContentProps> = ({ course }) => {
             <CourseResources />
           </TabsContent>
         </Tabs>
+        
+        <div className="border-t border-border mt-12 pt-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-semibold">Ready to start learning?</h3>
+              <p className="text-muted-foreground">
+                Join thousands of students already enrolled in this course
+              </p>
+            </div>
+            <ul className="flex flex-wrap gap-4">
+              <li className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
+                <span>Self-paced learning</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
+                <span>Certificate of completion</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
+                <span>Lifetime access</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

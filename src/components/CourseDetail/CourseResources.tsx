@@ -1,8 +1,27 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const CourseResources: React.FC = () => {
+  const { toast } = useToast();
+  
+  const resources = [
+    { title: "Course Workbook", type: "PDF", size: "2.3 MB", url: "#workbook" },
+    { title: "Practice Exercises", type: "ZIP", size: "4.1 MB", url: "#exercises" },
+    { title: "Reference Guide", type: "PDF", size: "1.7 MB", url: "#guide" },
+    { title: "Supplementary Reading", type: "PDF", size: "3.5 MB", url: "#reading" },
+  ];
+  
+  const handleDownload = (resource: typeof resources[0]) => {
+    // In a real app, this would download the actual file
+    toast({
+      title: "Download Started",
+      description: `Downloading ${resource.title} (${resource.size})`,
+    });
+  };
+  
   return (
     <>
       <h2 className="text-2xl font-semibold mb-4">Additional Resources</h2>
@@ -11,12 +30,7 @@ const CourseResources: React.FC = () => {
       </p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          { title: "Course Workbook", type: "PDF", size: "2.3 MB" },
-          { title: "Practice Exercises", type: "ZIP", size: "4.1 MB" },
-          { title: "Reference Guide", type: "PDF", size: "1.7 MB" },
-          { title: "Supplementary Reading", type: "PDF", size: "3.5 MB" },
-        ].map((resource, index) => (
+        {resources.map((resource, index) => (
           <div 
             key={index}
             className="p-4 rounded-lg border border-border hover:bg-accent/50 transition-colors flex items-center justify-between"
@@ -27,7 +41,15 @@ const CourseResources: React.FC = () => {
                 {resource.type} • {resource.size}
               </div>
             </div>
-            <Button variant="outline" size="sm">Download</Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleDownload(resource)}
+              className="flex items-center"
+            >
+              <Download className="h-4 w-4 mr-1" />
+              Download
+            </Button>
           </div>
         ))}
       </div>

@@ -13,6 +13,7 @@ import type { CourseItem } from "@/types/course"; // Fixed import path for Cours
 import CourseHeader from "@/components/CourseDetail/CourseHeader";
 import EnrollmentCard from "@/components/CourseDetail/EnrollmentCard";
 import CourseContent from "@/components/CourseDetail/CourseContent";
+import VideoRecommendations from "@/components/CourseDetail/VideoRecommendations";
 
 const CourseDetail: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -134,6 +135,8 @@ const CourseDetail: React.FC = () => {
       </div>
       
       <CourseContent course={course} />
+      
+      <VideoRecommendations courseTitle={course.title} />
     </Layout>
   );
 };
