@@ -68,7 +68,11 @@ const CourseContent: React.FC<CourseContentProps> = ({ course }) => {
               </li>
               <li className="flex items-start">
                 <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
-                <span>Lifetime access</span>
+                <span>Access to YouTube integrations</span>
+              </li>
+              <li className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
+                <span>Personalized recommendations</span>
               </li>
             </ul>
           </div>
