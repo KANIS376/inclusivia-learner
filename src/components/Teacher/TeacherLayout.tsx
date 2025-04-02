@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { 
   Users, BookOpen, MessageSquare, Award, 
   BarChart2, Activity, Brain, FileText,
-  LogOut, Moon, Sun, ChevronLeft, ChevronRight
+  LogOut, Moon, Sun, ChevronLeft, ChevronRight,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -197,6 +199,25 @@ const TeacherLayout: React.FC = () => {
       </aside>
       
       <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="bg-card border-b border-border h-16 flex items-center px-6">
+          <div className="flex items-center space-x-2">
+            {location.pathname.includes('/teacher/grading') && (
+              <>
+                <GraduationCap className="h-5 w-5 text-primary" />
+                <h1 className="text-xl font-semibold">AI Grading System</h1>
+              </>
+            )}
+            {!location.pathname.includes('/teacher/grading') && (
+              <h1 className="text-xl font-semibold">
+                {navigationItems.find(item => 
+                  item.exact 
+                    ? location.pathname === item.path 
+                    : location.pathname.startsWith(item.path)
+                )?.name || 'Teacher Dashboard'}
+              </h1>
+            )}
+          </div>
+        </header>
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
