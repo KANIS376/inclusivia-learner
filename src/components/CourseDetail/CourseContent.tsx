@@ -1,7 +1,8 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import CourseOverview from "./CourseOverview";
 import CourseCurriculum from "./CourseCurriculum";
 import CourseReviews from "./CourseReviews";
@@ -50,31 +51,36 @@ const CourseContent: React.FC<CourseContentProps> = ({ course }) => {
         </Tabs>
         
         <div className="border-t border-border mt-12 pt-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
-              <h3 className="text-xl font-semibold">Ready to start learning?</h3>
+              <h3 className="text-xl font-semibold mb-2">Ready to enhance your learning?</h3>
               <p className="text-muted-foreground">
-                Join thousands of students already enrolled in this course
+                Track your progress, get personalized recommendations, and connect with peers
               </p>
             </div>
-            <ul className="flex flex-wrap gap-4">
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
-                <span>Self-paced learning</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
-                <span>Certificate of completion</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
-                <span>Access to YouTube integrations</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-primary mr-2 shrink-0" />
-                <span>Personalized recommendations</span>
-              </li>
-            </ul>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Continue Learning
+              </Button>
+              <Button variant="outline" className="flex items-center gap-2">
+                Save for Later
+              </Button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+            {[
+              { text: "Self-paced learning", icon: CheckCircle },
+              { text: "Certificate of completion", icon: CheckCircle },
+              { text: "Access to YouTube integrations", icon: CheckCircle },
+              { text: "Personalized recommendations", icon: CheckCircle },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start">
+                <item.icon className="h-5 w-5 text-primary mr-2 shrink-0" />
+                <span>{item.text}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
