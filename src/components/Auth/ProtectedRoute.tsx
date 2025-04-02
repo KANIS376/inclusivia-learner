@@ -1,14 +1,15 @@
 
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, UserRole } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRole?: UserRole;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
+  const { user, loading, userRole } = useAuth();
 
   if (loading) {
     return (
@@ -18,8 +19,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
+  // If user is not authenticated, redirect to login
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // If a specific role is required and user doesn't have it
+  if (requiredRole && userRole !== requiredRole) {
+    // Redirect teachers to teacher dashboard and students to student dashboard
+    const redirectPath = userRole === 'teacher' ? '/teacher' : '/dashboard';
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <>{children}</>;
