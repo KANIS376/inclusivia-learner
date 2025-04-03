@@ -7,4 +7,6 @@ export interface CourseItem {
   level: string;
   duration: number | null;
   subject?: string;
+  progress?: number;
+  last_accessed?: string;
 }
