@@ -7,11 +7,4 @@ export interface CourseItem {
   level: string;
   duration: number | null;
   subject?: string;
-  rating?: number;
-  students?: number;
-  isFree?: boolean;
-  hasCertificate?: boolean;
-  image?: string;
-  progress?: number | null;
-  last_accessed?: string | null;
 }

@@ -14,6 +14,8 @@ import {
   getUserAchievements, 
   getUpcomingLessons, 
   getUserStats,
+  Course,
+  Achievement
 } from "@/services/userService";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -51,18 +53,8 @@ const Dashboard: React.FC = () => {
     enabled: !!userId,
   });
 
-  // Safely get user initials
-  const getUserInitials = () => {
-    const firstName = user?.user_metadata?.first_name || '';
-    const lastName = user?.user_metadata?.last_name || '';
-    
-    if (!firstName && !lastName) return 'U';
-    
-    return (firstName.charAt(0) + (lastName.charAt(0) || '')).toUpperCase();
-  };
-
-  // Get courses to display (use mock data if no real data available)
-  const coursesToDisplay = enrolledCourses.length > 0 ? enrolledCourses : [
+  // Mock data as fallback when actual data is not available yet
+  const inProgressCourses: Course[] = enrolledCourses.length > 0 ? enrolledCourses : [
     {
       id: "1",
       title: "Algebra Fundamentals",
@@ -89,8 +81,7 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  // Get achievements to display
-  const achievementsToDisplay = achievements.length > 0 ? achievements : [
+  const userAchievements: Achievement[] = achievements.length > 0 ? achievements : [
     {
       id: "1",
       name: "Fast Learner",
@@ -114,8 +105,7 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  // Get lessons to display
-  const lessonsToDisplay = upcomingLessons.length > 0 ? upcomingLessons : [
+  const scheduledLessons = upcomingLessons.length > 0 ? upcomingLessons : [
     {
       id: "1",
       title: "Quadratic Equations",
@@ -139,12 +129,11 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  // Get user stats with safe defaults
   const stats = userStats || {
-    courses_enrolled: 0,
-    lessons_completed: 0,
-    hours_spent: 0,
-    average_score: 0,
+    courses_enrolled: 5,
+    lessons_completed: 32,
+    hours_spent: 48,
+    average_score: 92,
   };
 
   // Render the icon based on the icon name string
@@ -169,7 +158,7 @@ const Dashboard: React.FC = () => {
     await signOut();
   };
 
-  const userInitials = getUserInitials();
+  const userInitials = user?.user_metadata?.first_name?.[0] + user?.user_metadata?.last_name?.[0] || 'U';
 
   return (
     <Layout>
@@ -179,10 +168,7 @@ const Dashboard: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-12 w-12 border-2 border-primary/20">
-                <AvatarImage 
-                  src={user?.user_metadata?.avatar_url || ''} 
-                  alt={user?.user_metadata?.first_name || 'User'} 
-                />
+                <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.first_name || 'User'} />
                 <AvatarFallback>{userInitials}</AvatarFallback>
               </Avatar>
               <div>
@@ -228,28 +214,28 @@ const Dashboard: React.FC = () => {
             {[
               {
                 title: "Courses Enrolled",
-                value: stats?.courses_enrolled?.toString() || "0",
+                value: stats.courses_enrolled.toString(),
                 icon: <BookMarked className="h-5 w-5 text-emerald-500" />,
                 trend: "+2 this month",
                 trendUp: true,
               },
               {
                 title: "Lessons Completed",
-                value: stats?.lessons_completed?.toString() || "0",
+                value: stats.lessons_completed.toString(),
                 icon: <BookOpen className="h-5 w-5 text-blue-500" />,
                 trend: "+12 this month",
                 trendUp: true,
               },
               {
                 title: "Hours Spent",
-                value: stats?.hours_spent?.toString() || "0",
+                value: stats.hours_spent.toString(),
                 icon: <Clock className="h-5 w-5 text-purple-500" />,
                 trend: "+5 this week",
                 trendUp: true,
               },
               {
                 title: "Average Score",
-                value: `${stats?.average_score || 0}%`,
+                value: `${stats.average_score}%`,
                 icon: <BarChart3 className="h-5 w-5 text-amber-500" />,
                 trend: "+3% this month",
                 trendUp: true,
@@ -288,7 +274,7 @@ const Dashboard: React.FC = () => {
               </div>
               
               <div className="space-y-4">
-                {coursesToDisplay.map((course) => (
+                {inProgressCourses.map((course, index) => (
                   <Link 
                     key={course.id} 
                     to={`/learn/${course.id}`}
@@ -297,12 +283,9 @@ const Dashboard: React.FC = () => {
                     <div className="flex flex-col sm:flex-row">
                       <div className="sm:w-1/3 aspect-video sm:aspect-square">
                         <img
-                          src={course.image_url || '/placeholder.svg'}
+                          src={course.image_url}
                           alt={course.title}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/placeholder.svg';
-                          }}
                         />
                       </div>
                       <div className="p-6 sm:w-2/3">
@@ -310,18 +293,18 @@ const Dashboard: React.FC = () => {
                         <div className="mb-4">
                           <div className="flex justify-between text-sm mb-1">
                             <span>Progress</span>
-                            <span>{course.progress || 0}%</span>
+                            <span>{course.progress}%</span>
                           </div>
                           <div className="w-full bg-accent/80 rounded-full h-2">
                             <div
                               className="bg-primary rounded-full h-2"
-                              style={{ width: `${course.progress || 0}%` }}
+                              style={{ width: `${course.progress}%` }}
                             ></div>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-xs text-muted-foreground">
-                            Last accessed {course.last_accessed || 'N/A'}
+                            Last accessed {course.last_accessed}
                           </span>
                           <button className="text-primary hover:text-primary/80 transition-colors text-sm font-medium">
                             Continue
@@ -346,7 +329,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {lessonsToDisplay.map((lesson) => (
+                  {scheduledLessons.map((lesson) => (
                     <div key={lesson.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors">
                       <h3 className="font-medium mb-1">{lesson.title}</h3>
                       <div className="flex justify-between items-center">
@@ -372,10 +355,10 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {achievementsToDisplay.map((achievement) => (
+                  {userAchievements.map((achievement) => (
                     <div key={achievement.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        {renderIcon(achievement.icon || 'award')}
+                        {renderIcon(achievement.icon)}
                       </div>
                       <div>
                         <h3 className="font-medium">{achievement.name}</h3>

@@ -1,10 +1,10 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -302,7 +302,8 @@ const Signup = () => {
   );
 };
 
-const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+// Teacher icon component
+const GraduationIcon = () => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width="48" 
@@ -313,7 +314,6 @@ const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2" 
     strokeLinecap="round" 
     strokeLinejoin="round"
-    {...props}
   >
     <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
     <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
