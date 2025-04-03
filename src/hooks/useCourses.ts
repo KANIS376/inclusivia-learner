@@ -10,7 +10,6 @@ export const useCourses = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [activeSubject, setActiveSubject] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,7 +35,7 @@ export const useCourses = () => {
   };
 
   useEffect(() => {
-    // Filter courses based on search query, active filter, and subject
+    // Filter courses based on search query and active filter
     let result = courses;
     
     if (searchQuery) {
@@ -52,14 +51,8 @@ export const useCourses = () => {
       result = result.filter(course => course.level === activeFilter);
     }
     
-    if (activeSubject) {
-      result = result.filter(course => 
-        course.subject?.toLowerCase() === activeSubject.toLowerCase()
-      );
-    }
-    
     setFilteredCourses(result);
-  }, [searchQuery, activeFilter, activeSubject, courses]);
+  }, [searchQuery, activeFilter, courses]);
 
   return {
     courses,
@@ -69,7 +62,5 @@ export const useCourses = () => {
     setSearchQuery,
     activeFilter,
     setActiveFilter,
-    activeSubject,
-    setActiveSubject,
   };
 };
