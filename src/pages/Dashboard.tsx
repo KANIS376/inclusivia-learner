@@ -158,7 +158,7 @@ const Dashboard: React.FC = () => {
     await signOut();
   };
 
-  const userInitials = user?.user_metadata?.first_name?.[0] + user?.user_metadata?.last_name?.[0] || 'U';
+  const userInitials = user?.user_metadata?.first_name?.[0] + (user?.user_metadata?.last_name?.[0] || '') || 'U';
 
   return (
     <Layout>
@@ -168,7 +168,7 @@ const Dashboard: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-12 w-12 border-2 border-primary/20">
-                <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.first_name || 'User'} />
+                <AvatarImage src={user?.user_metadata?.avatar_url || ''} alt={user?.user_metadata?.first_name || 'User'} />
                 <AvatarFallback>{userInitials}</AvatarFallback>
               </Avatar>
               <div>
@@ -214,28 +214,28 @@ const Dashboard: React.FC = () => {
             {[
               {
                 title: "Courses Enrolled",
-                value: stats.courses_enrolled.toString(),
+                value: stats?.courses_enrolled?.toString() || "0",
                 icon: <BookMarked className="h-5 w-5 text-emerald-500" />,
                 trend: "+2 this month",
                 trendUp: true,
               },
               {
                 title: "Lessons Completed",
-                value: stats.lessons_completed.toString(),
+                value: stats?.lessons_completed?.toString() || "0",
                 icon: <BookOpen className="h-5 w-5 text-blue-500" />,
                 trend: "+12 this month",
                 trendUp: true,
               },
               {
                 title: "Hours Spent",
-                value: stats.hours_spent.toString(),
+                value: stats?.hours_spent?.toString() || "0",
                 icon: <Clock className="h-5 w-5 text-purple-500" />,
                 trend: "+5 this week",
                 trendUp: true,
               },
               {
                 title: "Average Score",
-                value: `${stats.average_score}%`,
+                value: `${stats?.average_score || 0}%`,
                 icon: <BarChart3 className="h-5 w-5 text-amber-500" />,
                 trend: "+3% this month",
                 trendUp: true,
@@ -283,7 +283,7 @@ const Dashboard: React.FC = () => {
                     <div className="flex flex-col sm:flex-row">
                       <div className="sm:w-1/3 aspect-video sm:aspect-square">
                         <img
-                          src={course.image_url}
+                          src={course.image_url || '/placeholder.svg'}
                           alt={course.title}
                           className="w-full h-full object-cover"
                         />
@@ -293,18 +293,18 @@ const Dashboard: React.FC = () => {
                         <div className="mb-4">
                           <div className="flex justify-between text-sm mb-1">
                             <span>Progress</span>
-                            <span>{course.progress}%</span>
+                            <span>{course.progress || 0}%</span>
                           </div>
                           <div className="w-full bg-accent/80 rounded-full h-2">
                             <div
                               className="bg-primary rounded-full h-2"
-                              style={{ width: `${course.progress}%` }}
+                              style={{ width: `${course.progress || 0}%` }}
                             ></div>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-xs text-muted-foreground">
-                            Last accessed {course.last_accessed}
+                            Last accessed {course.last_accessed || 'N/A'}
                           </span>
                           <button className="text-primary hover:text-primary/80 transition-colors text-sm font-medium">
                             Continue
@@ -355,19 +355,29 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {userAchievements.map((achievement) => (
-                    <div key={achievement.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        {renderIcon(achievement.icon)}
+                  {userAchievements.map((achievement) => {
+                    // Convert date string to Date object safely
+                    let dateEarned;
+                    try {
+                      dateEarned = achievement.date_earned ? new Date(achievement.date_earned) : null;
+                    } catch (e) {
+                      dateEarned = null;
+                    }
+                    
+                    return (
+                      <div key={achievement.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                          {renderIcon(achievement.icon)}
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{achievement.name}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {achievement.description}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">{achievement.name}</h3>
-                        <p className="text-xs text-muted-foreground">
-                          {achievement.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
               

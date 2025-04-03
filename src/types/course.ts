@@ -12,4 +12,6 @@ export interface CourseItem {
   isFree?: boolean;
   hasCertificate?: boolean;
   image?: string;
+  progress?: number;
+  last_accessed?: string;
 }
