@@ -14,8 +14,6 @@ import {
   getUserAchievements, 
   getUpcomingLessons, 
   getUserStats,
-  Course,
-  Achievement
 } from "@/services/userService";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,8 +51,18 @@ const Dashboard: React.FC = () => {
     enabled: !!userId,
   });
 
-  // Mock data as fallback when actual data is not available yet
-  const inProgressCourses: Course[] = enrolledCourses.length > 0 ? enrolledCourses : [
+  // Safely get user initials
+  const getUserInitials = () => {
+    const firstName = user?.user_metadata?.first_name || '';
+    const lastName = user?.user_metadata?.last_name || '';
+    
+    if (!firstName && !lastName) return 'U';
+    
+    return (firstName.charAt(0) + (lastName.charAt(0) || '')).toUpperCase();
+  };
+
+  // Get courses to display (use mock data if no real data available)
+  const coursesToDisplay = enrolledCourses.length > 0 ? enrolledCourses : [
     {
       id: "1",
       title: "Algebra Fundamentals",
@@ -81,7 +89,8 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  const userAchievements: Achievement[] = achievements.length > 0 ? achievements : [
+  // Get achievements to display
+  const achievementsToDisplay = achievements.length > 0 ? achievements : [
     {
       id: "1",
       name: "Fast Learner",
@@ -105,7 +114,8 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  const scheduledLessons = upcomingLessons.length > 0 ? upcomingLessons : [
+  // Get lessons to display
+  const lessonsToDisplay = upcomingLessons.length > 0 ? upcomingLessons : [
     {
       id: "1",
       title: "Quadratic Equations",
@@ -129,6 +139,7 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  // Get user stats with safe defaults
   const stats = userStats || {
     courses_enrolled: 0,
     lessons_completed: 0,
@@ -156,16 +167,6 @@ const Dashboard: React.FC = () => {
 
   const handleLogout = async () => {
     await signOut();
-  };
-
-  // Safely get user initials
-  const getUserInitials = () => {
-    const firstName = user?.user_metadata?.first_name || '';
-    const lastName = user?.user_metadata?.last_name || '';
-    
-    if (!firstName && !lastName) return 'U';
-    
-    return (firstName.charAt(0) + (lastName.charAt(0) || '')).toUpperCase();
   };
 
   const userInitials = getUserInitials();
@@ -287,7 +288,7 @@ const Dashboard: React.FC = () => {
               </div>
               
               <div className="space-y-4">
-                {inProgressCourses.map((course, index) => (
+                {coursesToDisplay.map((course) => (
                   <Link 
                     key={course.id} 
                     to={`/learn/${course.id}`}
@@ -299,6 +300,9 @@ const Dashboard: React.FC = () => {
                           src={course.image_url || '/placeholder.svg'}
                           alt={course.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder.svg';
+                          }}
                         />
                       </div>
                       <div className="p-6 sm:w-2/3">
@@ -342,7 +346,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {scheduledLessons.map((lesson) => (
+                  {lessonsToDisplay.map((lesson) => (
                     <div key={lesson.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors">
                       <h3 className="font-medium mb-1">{lesson.title}</h3>
                       <div className="flex justify-between items-center">
@@ -368,10 +372,10 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {userAchievements.map((achievement) => (
+                  {achievementsToDisplay.map((achievement) => (
                     <div key={achievement.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        {renderIcon(achievement.icon)}
+                        {renderIcon(achievement.icon || 'award')}
                       </div>
                       <div>
                         <h3 className="font-medium">{achievement.name}</h3>
