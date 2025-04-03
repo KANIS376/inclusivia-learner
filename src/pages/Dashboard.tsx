@@ -130,10 +130,10 @@ const Dashboard: React.FC = () => {
   ];
 
   const stats = userStats || {
-    courses_enrolled: 5,
-    lessons_completed: 32,
-    hours_spent: 48,
-    average_score: 92,
+    courses_enrolled: 0,
+    lessons_completed: 0,
+    hours_spent: 0,
+    average_score: 0,
   };
 
   // Render the icon based on the icon name string
@@ -158,7 +158,17 @@ const Dashboard: React.FC = () => {
     await signOut();
   };
 
-  const userInitials = user?.user_metadata?.first_name?.[0] + (user?.user_metadata?.last_name?.[0] || '') || 'U';
+  // Safely get user initials
+  const getUserInitials = () => {
+    const firstName = user?.user_metadata?.first_name || '';
+    const lastName = user?.user_metadata?.last_name || '';
+    
+    if (!firstName && !lastName) return 'U';
+    
+    return (firstName.charAt(0) + (lastName.charAt(0) || '')).toUpperCase();
+  };
+
+  const userInitials = getUserInitials();
 
   return (
     <Layout>
@@ -168,7 +178,10 @@ const Dashboard: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-12 w-12 border-2 border-primary/20">
-                <AvatarImage src={user?.user_metadata?.avatar_url || ''} alt={user?.user_metadata?.first_name || 'User'} />
+                <AvatarImage 
+                  src={user?.user_metadata?.avatar_url || ''} 
+                  alt={user?.user_metadata?.first_name || 'User'} 
+                />
                 <AvatarFallback>{userInitials}</AvatarFallback>
               </Avatar>
               <div>
@@ -355,29 +368,19 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {userAchievements.map((achievement) => {
-                    // Convert date string to Date object safely
-                    let dateEarned;
-                    try {
-                      dateEarned = achievement.date_earned ? new Date(achievement.date_earned) : null;
-                    } catch (e) {
-                      dateEarned = null;
-                    }
-                    
-                    return (
-                      <div key={achievement.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                          {renderIcon(achievement.icon)}
-                        </div>
-                        <div>
-                          <h3 className="font-medium">{achievement.name}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {achievement.description}
-                          </p>
-                        </div>
+                  {userAchievements.map((achievement) => (
+                    <div key={achievement.id} className="p-3 rounded-lg hover:bg-accent/40 transition-colors flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        {renderIcon(achievement.icon)}
                       </div>
-                    );
-                  })}
+                      <div>
+                        <h3 className="font-medium">{achievement.name}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          {achievement.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
               
