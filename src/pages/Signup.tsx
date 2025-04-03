@@ -4,6 +4,7 @@ import Layout from "../components/Layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -194,7 +195,7 @@ const Signup = () => {
               <div className="glass rounded-xl p-8">
                 <form onSubmit={(e) => handleSubmit(e, 'teacher')} className="space-y-6">
                   <div className="flex justify-center mb-4">
-                    <GraduationIcon />
+                    <GraduationIcon className="h-12 w-12 text-primary" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">

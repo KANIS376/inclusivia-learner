@@ -173,7 +173,7 @@ const Login = () => {
               <div className="glass rounded-xl p-8">
                 <form onSubmit={(e) => handleSubmit(e, 'teacher')} className="space-y-6">
                   <div className="flex justify-center mb-4">
-                    <GraduationIcon />
+                    <GraduationIcon className="h-12 w-12 text-primary" />
                   </div>
                   
                   <div className="space-y-2">
