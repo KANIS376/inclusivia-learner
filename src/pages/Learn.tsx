@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import AIAssistant from "../components/AI/AIAssistant";
@@ -207,7 +208,7 @@ const Learn: React.FC = () => {
               >
                 <div className="aspect-video w-full overflow-hidden bg-accent">
                   <img
-                    src={course.image}
+                    src={course.image || course.image_url || ''}
                     alt={course.title}
                     className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
                   />
@@ -224,18 +225,24 @@ const Learn: React.FC = () => {
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="h-4 w-4 mr-1" />
-                      <span>{course.duration}</span>
+                      <span>{typeof course.duration === 'number' ? `${course.duration} weeks` : course.duration}</span>
                     </div>
                   </div>
                   <div className="flex items-center text-sm">
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                      <span className="font-medium">{course.rating}</span>
-                    </div>
-                    <span className="mx-2 text-muted-foreground">•</span>
-                    <span className="text-muted-foreground">
-                      {course.students.toLocaleString()} students
-                    </span>
+                    {course.rating && (
+                      <>
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                          <span className="font-medium">{course.rating}</span>
+                        </div>
+                        <span className="mx-2 text-muted-foreground">•</span>
+                      </>
+                    )}
+                    {course.students !== undefined && (
+                      <span className="text-muted-foreground">
+                        {course.students.toLocaleString()} students
+                      </span>
+                    )}
                   </div>
                   {course.subject && (
                     <div className="mt-3">
