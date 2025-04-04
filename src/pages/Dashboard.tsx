@@ -286,6 +286,11 @@ const Dashboard: React.FC = () => {
                           src={course.image_url}
                           alt={course.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.src = '/placeholder.svg';
+                          }}
                         />
                       </div>
                       <div className="p-6 sm:w-2/3">
