@@ -31,11 +31,6 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onEnroll }) => {
             src={course.image_url}
             alt={course.title}
             className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null;
-              target.src = '/placeholder.svg';
-            }}
           />
         ) : (
           <div className="w-full h-full bg-primary/10 flex items-center justify-center">
@@ -46,7 +41,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onEnroll }) => {
       <CardHeader>
         <div className="flex items-center justify-between mb-2">
           <Badge variant="outline" className="bg-primary/10 text-primary">
-            {course.level || 'All Levels'}
+            {course.level}
           </Badge>
           {course.duration && (
             <div className="flex items-center text-sm text-muted-foreground">
