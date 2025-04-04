@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
@@ -11,10 +12,11 @@ import { Info, BookOpen } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const Signup = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
   const { signUp, usingMockData } = useAuth();
@@ -24,7 +26,7 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent, role: 'student' | 'teacher') => {
     e.preventDefault();
     
-    if (!firstName || !lastName || !email || !password) {
+    if (!email || !password || !confirmPassword || !firstName || !lastName) {
       toast({
         title: "Missing fields",
         description: "Please fill in all required fields",
@@ -33,10 +35,19 @@ const Signup = () => {
       return;
     }
     
-    if (password.length < 8) {
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (password.length < 6) {
       toast({
         title: "Password too short",
-        description: "Password must be at least 8 characters long",
+        description: "Password must be at least 6 characters long",
         variant: "destructive"
       });
       return;
@@ -46,15 +57,23 @@ const Signup = () => {
       setIsLoading(true);
       await signUp(email, password, firstName, lastName, role);
       
-      // Redirect based on role
+      toast({
+        title: "Account created",
+        description: "Your account has been created successfully",
+      });
+      
       if (role === 'teacher') {
         navigate("/teacher");
       } else {
         navigate("/dashboard");
       }
-    } catch (error) {
-      // Error is already handled in the auth context
+    } catch (error: any) {
       console.error("Signup error:", error);
+      toast({
+        title: "Signup failed",
+        description: error.message || "Please try again",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +85,7 @@ const Signup = () => {
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold">Create an account</h1>
-            <p className="text-muted-foreground mt-2">Start your personalized learning journey today</p>
+            <p className="text-muted-foreground mt-2">Join our learning platform and start your journey</p>
           </div>
           
           {usingMockData && (
@@ -87,27 +106,28 @@ const Signup = () => {
             
             <TabsContent value="student" className="mt-4">
               <div className="glass rounded-xl p-8">
-                <form onSubmit={(e) => handleSubmit(e, 'student')} className="space-y-6">
+                <form onSubmit={(e) => handleSubmit(e, 'student')} className="space-y-4">
                   <div className="flex justify-center mb-4">
                     <BookOpen className="h-12 w-12 text-primary" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="student-firstName">First name</Label>
+                      <Label htmlFor="student-first-name">First Name</Label>
                       <Input
-                        id="student-firstName"
+                        id="student-first-name"
+                        placeholder="First Name"
                         required
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         disabled={isLoading}
                       />
                     </div>
-                    
                     <div className="space-y-2">
-                      <Label htmlFor="student-lastName">Last name</Label>
+                      <Label htmlFor="student-last-name">Last Name</Label>
                       <Input
-                        id="student-lastName"
+                        id="student-last-name"
+                        placeholder="Last Name"
                         required
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
@@ -139,9 +159,18 @@ const Signup = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Must be at least 8 characters including a number and a special character.
-                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="student-confirm-password">Confirm Password</Label>
+                    <Input
+                      id="student-confirm-password"
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={isLoading}
+                    />
                   </div>
                   
                   <Button
@@ -174,7 +203,7 @@ const Signup = () => {
                         Creating account...
                       </span>
                     ) : (
-                      "Create Student Account"
+                      "Sign up as Student"
                     )}
                   </Button>
                   
@@ -182,7 +211,7 @@ const Signup = () => {
                     <p>
                       Already have an account?{" "}
                       <Link to="/login" className="text-primary hover:underline">
-                        Sign in
+                        Log in
                       </Link>
                     </p>
                   </div>
@@ -192,27 +221,28 @@ const Signup = () => {
             
             <TabsContent value="teacher" className="mt-4">
               <div className="glass rounded-xl p-8">
-                <form onSubmit={(e) => handleSubmit(e, 'teacher')} className="space-y-6">
+                <form onSubmit={(e) => handleSubmit(e, 'teacher')} className="space-y-4">
                   <div className="flex justify-center mb-4">
-                    <GraduationIcon />
+                    <GraduationIcon className="h-12 w-12 text-primary" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="teacher-firstName">First name</Label>
+                      <Label htmlFor="teacher-first-name">First Name</Label>
                       <Input
-                        id="teacher-firstName"
+                        id="teacher-first-name"
+                        placeholder="First Name"
                         required
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         disabled={isLoading}
                       />
                     </div>
-                    
                     <div className="space-y-2">
-                      <Label htmlFor="teacher-lastName">Last name</Label>
+                      <Label htmlFor="teacher-last-name">Last Name</Label>
                       <Input
-                        id="teacher-lastName"
+                        id="teacher-last-name"
+                        placeholder="Last Name"
                         required
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
@@ -244,9 +274,18 @@ const Signup = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Must be at least 8 characters including a number and a special character.
-                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="teacher-confirm-password">Confirm Password</Label>
+                    <Input
+                      id="teacher-confirm-password"
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={isLoading}
+                    />
                   </div>
                   
                   <Button
@@ -279,7 +318,7 @@ const Signup = () => {
                         Creating account...
                       </span>
                     ) : (
-                      "Create Teacher Account"
+                      "Sign up as Teacher"
                     )}
                   </Button>
                   
@@ -287,7 +326,7 @@ const Signup = () => {
                     <p>
                       Already have an account?{" "}
                       <Link to="/login" className="text-primary hover:underline">
-                        Sign in
+                        Log in
                       </Link>
                     </p>
                   </div>
@@ -301,7 +340,8 @@ const Signup = () => {
   );
 };
 
-const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+// Updated the GraduationIcon component to accept className as a prop
+const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement> & { className?: string }> = (props) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width="48" 

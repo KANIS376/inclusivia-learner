@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
@@ -173,7 +174,7 @@ const Login = () => {
               <div className="glass rounded-xl p-8">
                 <form onSubmit={(e) => handleSubmit(e, 'teacher')} className="space-y-6">
                   <div className="flex justify-center mb-4">
-                    <GraduationIcon />
+                    <GraduationIcon className="h-12 w-12 text-primary" />
                   </div>
                   
                   <div className="space-y-2">
@@ -271,7 +272,8 @@ const Login = () => {
   );
 };
 
-const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+// Updated the GraduationIcon component to accept className as a prop
+const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement> & { className?: string }> = (props) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width="48" 
