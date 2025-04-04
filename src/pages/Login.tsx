@@ -272,8 +272,8 @@ const Login = () => {
   );
 };
 
-// Updated the GraduationIcon component to accept className as a prop
-const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement> & { className?: string }> = (props) => (
+// Fix: Adding correct TypeScript props interface for the GraduationIcon component
+const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width="48" 
