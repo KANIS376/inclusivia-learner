@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
@@ -195,7 +194,7 @@ const Signup = () => {
               <div className="glass rounded-xl p-8">
                 <form onSubmit={(e) => handleSubmit(e, 'teacher')} className="space-y-6">
                   <div className="flex justify-center mb-4">
-                    <GraduationIcon className="h-12 w-12 text-primary" />
+                    <GraduationIcon />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
@@ -302,8 +301,7 @@ const Signup = () => {
   );
 };
 
-// Teacher icon component
-const GraduationIcon = () => (
+const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width="48" 
@@ -314,6 +312,7 @@ const GraduationIcon = () => (
     strokeWidth="2" 
     strokeLinecap="round" 
     strokeLinejoin="round"
+    {...props}
   >
     <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
     <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
