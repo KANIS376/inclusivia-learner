@@ -9,8 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info, BookOpen } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Info } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,7 +20,7 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const handleSubmit = async (e: React.FormEvent, role: 'student' | 'teacher') => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
@@ -35,14 +34,10 @@ const Login = () => {
     
     try {
       setIsLoading(true);
-      await signIn(email, password, role);
-      
-      if (role === 'teacher') {
-        navigate("/teacher");
-      } else {
-        navigate("/dashboard");
-      }
+      await signIn(email, password);
+      navigate("/dashboard");
     } catch (error) {
+      // Error is already handled in the auth context
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -68,227 +63,99 @@ const Login = () => {
             </Alert>
           )}
           
-          <Tabs defaultValue="student" className="mb-6">
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="student">Student</TabsTrigger>
-              <TabsTrigger value="teacher">Teacher</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="student" className="mt-4">
-              <div className="glass rounded-xl p-8">
-                <form onSubmit={(e) => handleSubmit(e, 'student')} className="space-y-6">
-                  <div className="flex justify-center mb-4">
-                    <BookOpen className="h-12 w-12 text-primary" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="student-email">Email</Label>
-                    <Input
-                      id="student-email"
-                      type="email"
-                      placeholder="you@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="student-password">Password</Label>
-                      <Link
-                        to="/forgot-password"
-                        className="text-sm text-primary hover:underline"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-                    <Input
-                      id="student-password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="student-remember" />
-                    <Label
-                      htmlFor="student-remember"
-                      className="text-sm font-normal"
-                    >
-                      Remember me for 30 days
-                    </Label>
-                  </div>
-                  
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Signing in...
-                      </span>
-                    ) : (
-                      "Sign in as Student"
-                    )}
-                  </Button>
-                  
-                  <div className="text-center text-sm">
-                    <p>
-                      Don't have an account?{" "}
-                      <Link to="/signup" className="text-primary hover:underline">
-                        Sign up
-                      </Link>
-                    </p>
-                  </div>
-                </form>
+          <div className="glass rounded-xl p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
-            </TabsContent>
-            
-            <TabsContent value="teacher" className="mt-4">
-              <div className="glass rounded-xl p-8">
-                <form onSubmit={(e) => handleSubmit(e, 'teacher')} className="space-y-6">
-                  <div className="flex justify-center mb-4">
-                    <GraduationIcon className="h-12 w-12 text-primary" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="teacher-email">Email</Label>
-                    <Input
-                      id="teacher-email"
-                      type="email"
-                      placeholder="teacher@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="teacher-password">Password</Label>
-                      <Link
-                        to="/forgot-password"
-                        className="text-sm text-primary hover:underline"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-                    <Input
-                      id="teacher-password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="teacher-remember" />
-                    <Label
-                      htmlFor="teacher-remember"
-                      className="text-sm font-normal"
-                    >
-                      Remember me for 30 days
-                    </Label>
-                  </div>
-                  
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-primary hover:underline"
                   >
-                    {isLoading ? (
-                      <span className="flex items-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Signing in...
-                      </span>
-                    ) : (
-                      "Sign in as Teacher"
-                    )}
-                  </Button>
-                  
-                  <div className="text-center text-sm">
-                    <p>
-                      Don't have an account?{" "}
-                      <Link to="/signup" className="text-primary hover:underline">
-                        Sign up
-                      </Link>
-                    </p>
-                  </div>
-                </form>
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
               </div>
-            </TabsContent>
-          </Tabs>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox id="remember" />
+                <Label
+                  htmlFor="remember"
+                  className="text-sm font-normal"
+                >
+                  Remember me for 30 days
+                </Label>
+              </div>
+              
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+              
+              <div className="text-center text-sm">
+                <p>
+                  Don't have an account?{" "}
+                  <Link to="/signup" className="text-primary hover:underline">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </Layout>
   );
 };
-
-// Fix: Adding correct TypeScript props interface for the GraduationIcon component
-const GraduationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="48" 
-    height="48" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
-  </svg>
-);
 
 export default Login;

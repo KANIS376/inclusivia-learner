@@ -1,25 +1,12 @@
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout/Layout";
 import AIAssistant from "../components/AI/AIAssistant";
-import { Search, BookOpen, Clock, Star, ChevronRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Search, BookOpen, Clock, Star, Filter, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import CourseFilters from "@/components/Courses/CourseFilters";
-import CourseSearch from "@/components/Courses/CourseSearch";
-import { useCourses } from "@/hooks/useCourses";
 
 const Learn: React.FC = () => {
-  const navigate = useNavigate();
-  const {
-    filteredCourses,
-    searchQuery,
-    setSearchQuery,
-    activeFilter,
-    setActiveFilter,
-    activeSubject,
-    setActiveSubject
-  } = useCourses();
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -34,33 +21,6 @@ const Learn: React.FC = () => {
     { name: "Arts & Music", courses: 12, icon: "🎨" },
   ];
 
-  const handleSubjectClick = (subject: string) => {
-    setActiveSubject(subject);
-  };
-
-  // Function to filter courses based on the current filters
-  const getDisplayedCourses = () => {
-    if (filteredCourses.length > 0) {
-      return filteredCourses.slice(0, 6); // Only display 6 courses to match the original design
-    }
-    
-    // If no filtered courses, use the mock data
-    return allCourses.filter(course => {
-      // Apply subject filter if active
-      if (activeSubject && !course.subject?.includes(activeSubject)) {
-        return false;
-      }
-      
-      // Apply level filter if active
-      if (activeFilter && course.level !== activeFilter) {
-        return false;
-      }
-      
-      return true;
-    }).slice(0, 6);
-  };
-
-  // Original mock data with added subject property
   const allCourses = [
     {
       title: "Introduction to Algebra",
@@ -72,7 +32,6 @@ const Learn: React.FC = () => {
       image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
       isFree: false,
       hasCertificate: true,
-      subject: "Mathematics"
     },
     {
       title: "Physics: Forces & Motion",
@@ -84,7 +43,6 @@ const Learn: React.FC = () => {
       image: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
       isFree: false,
       hasCertificate: true,
-      subject: "Science"
     },
     {
       title: "English Literature",
@@ -96,7 +54,6 @@ const Learn: React.FC = () => {
       image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
       isFree: true,
       hasCertificate: false,
-      subject: "Languages"
     },
     {
       title: "Introduction to Coding",
@@ -108,7 +65,6 @@ const Learn: React.FC = () => {
       image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
       isFree: true,
       hasCertificate: false,
-      subject: "Computer Science"
     },
     {
       title: "Chemistry Essentials",
@@ -120,7 +76,6 @@ const Learn: React.FC = () => {
       image: "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
       isFree: false,
       hasCertificate: true,
-      subject: "Science"
     },
     {
       title: "World History",
@@ -132,11 +87,39 @@ const Learn: React.FC = () => {
       image: "https://images.unsplash.com/photo-1461360228754-6e81c478b882?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
       isFree: false,
       hasCertificate: true,
-      subject: "Social Studies"
     },
   ];
 
-  const coursesToDisplay = getDisplayedCourses();
+  const courses = React.useMemo(() => {
+    if (!activeFilter) return allCourses;
+    
+    switch (activeFilter) {
+      case "Beginner":
+        return allCourses.filter(course => course.level === "Beginner");
+      case "Intermediate":
+        return allCourses.filter(course => course.level === "Intermediate");
+      case "Advanced":
+        return allCourses.filter(course => course.level === "Advanced");
+      case "Free":
+        return allCourses.filter(course => course.isFree);
+      case "Certificate":
+        return allCourses.filter(course => course.hasCertificate);
+      default:
+        return allCourses;
+    }
+  }, [activeFilter, allCourses]);
+
+  const handleFilterClick = (filter: string) => {
+    if (activeFilter === filter) {
+      setActiveFilter(null);
+    } else {
+      setActiveFilter(filter);
+    }
+  };
+
+  const handleResetFilters = () => {
+    setActiveFilter(null);
+  };
 
   return (
     <Layout>
@@ -147,19 +130,46 @@ const Learn: React.FC = () => {
               <h1 className="text-3xl md:text-4xl font-bold mb-2">Discover Courses</h1>
               <p className="text-muted-foreground">Find the perfect course for your learning journey</p>
             </div>
-            <CourseSearch 
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-            />
+            <div className="relative max-w-md w-full">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search courses..."
+                className="pl-10 pr-4 py-2 w-full bg-background border border-input rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+              />
+            </div>
           </div>
           
-          <CourseFilters
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            activeSubject={activeSubject}
-            onSubjectChange={setActiveSubject}
-            isLevelFilter={true}
-          />
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              className={`inline-flex items-center px-4 py-2 rounded-full ${
+                activeFilter === null 
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "bg-primary/10 text-primary hover:bg-primary/20"
+              } transition-colors text-sm`}
+              onClick={handleResetFilters}
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              All Filters
+            </Button>
+            {["Beginner", "Intermediate", "Advanced", "Free", "Certificate"].map((filter, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                className={`px-4 py-2 rounded-full ${
+                  activeFilter === filter 
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "bg-background border border-input hover:bg-accent/50"
+                } transition-colors text-sm`}
+                onClick={() => handleFilterClick(filter)}
+              >
+                {filter}
+              </Button>
+            ))}
+          </div>
         </div>
       </section>
       
@@ -168,17 +178,15 @@ const Learn: React.FC = () => {
           <h2 className="text-2xl font-bold mb-8">Browse by Subject</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             {subjects.map((subject, index) => (
-              <div
+              <Link
                 key={index}
-                onClick={() => handleSubjectClick(subject.name)}
-                className={`hover-lift glass rounded-xl p-6 text-center cursor-pointer transition-all ${
-                  activeSubject === subject.name ? 'ring-2 ring-primary' : ''
-                }`}
+                to="#"
+                className="hover-lift glass rounded-xl p-6 text-center"
               >
                 <div className="text-3xl mb-3">{subject.icon}</div>
                 <h3 className="font-medium mb-1">{subject.name}</h3>
                 <p className="text-sm text-muted-foreground">{subject.courses} courses</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -187,11 +195,9 @@ const Learn: React.FC = () => {
       <section className="py-12">
         <div className="container max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">
-              {activeSubject ? `${activeSubject} Courses` : 'Featured Courses'}
-            </h2>
+            <h2 className="text-2xl font-bold">Featured Courses</h2>
             <Link
-              to="/courses"
+              to="#"
               className="text-primary hover:text-primary/80 transition-colors inline-flex items-center text-sm font-medium"
             >
               View all
@@ -200,7 +206,7 @@ const Learn: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {coursesToDisplay.map((course, index) => (
+            {courses.map((course, index) => (
               <Link
                 key={index}
                 to="#"
@@ -208,7 +214,7 @@ const Learn: React.FC = () => {
               >
                 <div className="aspect-video w-full overflow-hidden bg-accent">
                   <img
-                    src={course.image || course.image_url || ''}
+                    src={course.image}
                     alt={course.title}
                     className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
                   />
@@ -225,51 +231,23 @@ const Learn: React.FC = () => {
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="h-4 w-4 mr-1" />
-                      <span>{typeof course.duration === 'number' ? `${course.duration} weeks` : course.duration}</span>
+                      <span>{course.duration}</span>
                     </div>
                   </div>
                   <div className="flex items-center text-sm">
-                    {course.rating && (
-                      <>
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                          <span className="font-medium">{course.rating}</span>
-                        </div>
-                        <span className="mx-2 text-muted-foreground">•</span>
-                      </>
-                    )}
-                    {course.students !== undefined && (
-                      <span className="text-muted-foreground">
-                        {course.students.toLocaleString()} students
-                      </span>
-                    )}
-                  </div>
-                  {course.subject && (
-                    <div className="mt-3">
-                      <span className="inline-block px-2 py-1 text-xs rounded-full bg-secondary/10 text-secondary-foreground">
-                        {course.subject}
-                      </span>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                      <span className="font-medium">{course.rating}</span>
                     </div>
-                  )}
+                    <span className="mx-2 text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">
+                      {course.students.toLocaleString()} students
+                    </span>
+                  </div>
                 </div>
               </Link>
             ))}
           </div>
-          
-          {coursesToDisplay.length === 0 && (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-medium mb-2">No courses found</h3>
-              <p className="text-muted-foreground mb-6">
-                Try adjusting your filters or browse a different subject
-              </p>
-              <Button onClick={() => {
-                setActiveFilter(null);
-                setActiveSubject(null);
-              }}>
-                Clear Filters
-              </Button>
-            </div>
-          )}
         </div>
       </section>
       

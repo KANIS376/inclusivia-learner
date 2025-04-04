@@ -4,16 +4,12 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase, isUsingMockData } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
-// Define user roles
-export type UserRole = 'student' | 'teacher';
-
 type AuthContextType = {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userRole: UserRole | null;
-  signIn: (email: string, password: string, role: UserRole) => Promise<void>;
-  signUp: (email: string, password: string, firstName: string, lastName: string, role: UserRole) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   signOut: () => Promise<void>;
   usingMockData: boolean;
 };
@@ -24,7 +20,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,15 +28,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Get user role from metadata if available
-        if (session?.user) {
-          const role = session.user.user_metadata?.role as UserRole;
-          setUserRole(role || null);
-        } else {
-          setUserRole(null);
-        }
-        
         setLoading(false);
       }
     );
@@ -50,20 +36,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      // Get user role from metadata if available
-      if (session?.user) {
-        const role = session.user.user_metadata?.role as UserRole;
-        setUserRole(role || null);
-      }
-      
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string, role: UserRole) => {
+  const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
       
@@ -77,10 +56,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Simulate successful login with mock data
         setTimeout(() => {
           setLoading(false);
-          setUserRole(role);
           toast({
             title: "Mock Login Successful",
-            description: `Logged in as ${role}`
+            description: "Logged in with mock data"
           });
         }, 1000);
         
@@ -109,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string, role: UserRole) => {
+  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       setLoading(true);
       
@@ -123,17 +101,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Simulate successful registration with mock data
         setTimeout(() => {
           setLoading(false);
-          setUserRole(role);
           toast({
             title: "Mock Registration Successful",
-            description: `Registered as ${role}`
+            description: "Registered with mock data"
           });
         }, 1000);
         
         return;
       }
       
-      // Create auth user with role in metadata
+      // Create auth user
       const { error: signUpError } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -141,7 +118,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             first_name: firstName,
             last_name: lastName,
-            role: role
           }
         }
       });
@@ -172,7 +148,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Simulate successful logout with mock data
         setTimeout(() => {
           setLoading(false);
-          setUserRole(null);
           toast({
             title: "Mock Logout Successful",
             description: "Logged out with mock data"
@@ -203,7 +178,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user, 
       session, 
       loading, 
-      userRole,
       signIn, 
       signUp, 
       signOut,

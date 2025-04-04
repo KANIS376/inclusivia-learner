@@ -43,17 +43,17 @@ const App = () => (
             <Route 
               path="/dashboard" 
               element={
-                <ProtectedRoute requiredRole="student">
+                <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
               } 
             />
             
-            {/* Teacher Dashboard Routes - Protected for teachers only */}
+            {/* Teacher Dashboard Routes */}
             <Route 
               path="/teacher" 
               element={
-                <ProtectedRoute requiredRole="teacher">
+                <ProtectedRoute>
                   <TeacherLayout />
                 </ProtectedRoute>
               }

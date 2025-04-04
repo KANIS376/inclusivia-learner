@@ -6,23 +6,9 @@ import { Filter } from "lucide-react";
 interface CourseFiltersProps {
   activeFilter: string | null;
   onFilterChange: (filter: string | null) => void;
-  activeSubject?: string | null;
-  onSubjectChange?: (subject: string | null) => void;
-  isLevelFilter?: boolean;
 }
 
-const CourseFilters: React.FC<CourseFiltersProps> = ({ 
-  activeFilter, 
-  onFilterChange, 
-  activeSubject,
-  onSubjectChange,
-  isLevelFilter = true
-}) => {
-  // Define filter options based on the type of filter
-  const filterOptions = isLevelFilter 
-    ? ["Beginner", "Intermediate", "Advanced"] 
-    : ["Free", "Certificate"];
-
+const CourseFilters: React.FC<CourseFiltersProps> = ({ activeFilter, onFilterChange }) => {
   return (
     <div className="mt-8 flex flex-wrap gap-3">
       <Button
@@ -35,9 +21,9 @@ const CourseFilters: React.FC<CourseFiltersProps> = ({
         onClick={() => onFilterChange(null)}
       >
         <Filter className="mr-2 h-4 w-4" />
-        {isLevelFilter ? "All Levels" : "All Filters"}
+        All Levels
       </Button>
-      {filterOptions.map((filter, index) => (
+      {["Beginner", "Intermediate", "Advanced"].map((filter, index) => (
         <Button
           key={index}
           variant="outline"
@@ -51,19 +37,6 @@ const CourseFilters: React.FC<CourseFiltersProps> = ({
           {filter}
         </Button>
       ))}
-      
-      {/* If we have subject filtering enabled, show active subject */}
-      {activeSubject && onSubjectChange && (
-        <div className="ml-auto">
-          <Button
-            variant="outline"
-            className="px-4 py-2 rounded-full bg-secondary/20 text-secondary-foreground hover:bg-secondary/30 transition-colors text-sm"
-            onClick={() => onSubjectChange(null)}
-          >
-            {activeSubject} ✕
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
