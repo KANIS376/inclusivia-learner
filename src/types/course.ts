@@ -6,4 +6,5 @@ export interface CourseItem {
   image_url: string | null;
   level: string;
   duration: number | null;
+  subject?: string;
 }
