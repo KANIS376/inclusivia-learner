@@ -16,7 +16,11 @@ serve(async (req) => {
   try {
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
     if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not set');
+      console.error('GEMINI_API_KEY is not set in environment variables');
+      return new Response(
+        JSON.stringify({ error: 'API key configuration error. Please contact administrator.' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const { prompt, type, context = {} } = await req.json();
@@ -68,7 +72,7 @@ serve(async (req) => {
         systemPrompt = `You are an AI assistant helping with educational content. Provide a helpful, concise, and educational response.`;
     }
 
-    console.log(`Processing ${type} request with prompt: ${prompt.substring(0, 100)}...`);
+    console.log(`Processing ${type} request with prompt length: ${prompt.length}`);
 
     const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
     const response = await fetch(`${url}?key=${GEMINI_API_KEY}`, {
@@ -98,8 +102,8 @@ serve(async (req) => {
     const data = await response.json();
     
     if (!response.ok) {
-      console.error('Gemini API error:', data);
-      throw new Error(`Gemini API error: ${data.error?.message || 'Unknown error'}`);
+      console.error('Gemini API error:', JSON.stringify(data));
+      throw new Error(`Gemini API error: ${data.error?.message || JSON.stringify(data)}`);
     }
 
     // Extract the text from Gemini response
@@ -117,7 +121,7 @@ serve(async (req) => {
           const jsonStr = result.substring(startJson, endJson);
           formattedResponse = JSON.parse(jsonStr);
         } else {
-          console.warn('Could not extract JSON from response');
+          console.warn('Could not extract JSON from response:', result);
         }
       } catch (error) {
         console.error('Error parsing JSON from Gemini response:', error);
@@ -132,7 +136,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in gemini-ai function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || 'Unknown error occurred' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
