@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { queryGemini } from '@/lib/gemini';
+import { getTutorResponse } from '@/lib/gemini';
 import { 
   Card, 
   CardContent, 
@@ -51,13 +51,10 @@ const AITutorBot: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const response = await queryGemini(input, 'general', {
-        role: 'tutor',
-        subject: 'general knowledge'
-      });
+      const response = await getTutorResponse(input);
       
-      if (response.error) {
-        throw new Error(response.error);
+      if (!response || response.error) {
+        throw new Error(response?.error || 'Failed to get response from AI tutor');
       }
       
       const aiMessage: Message = {
@@ -70,9 +67,20 @@ const AITutorBot: React.FC = () => {
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Error querying Gemini AI:', error);
+      
+      // Add an error message from the AI
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        content: "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again in a moment.",
+        isUser: false,
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
       toast({
         title: "Error",
-        description: "Failed to get response from AI tutor.",
+        description: error instanceof Error ? error.message : "Failed to get response from AI tutor",
         variant: "destructive",
       });
     } finally {

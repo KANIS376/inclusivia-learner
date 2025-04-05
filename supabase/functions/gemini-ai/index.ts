@@ -74,8 +74,11 @@ serve(async (req) => {
 
     console.log(`Processing ${type} request with prompt length: ${prompt.length}`);
 
-    // Updated to use the correct Gemini API version and model name
-    const url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent";
+    // Using the gemini-1.5-pro model which is compatible with the API version
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+    
+    console.log(`Calling Gemini API at: ${url}`);
+    
     const response = await fetch(`${url}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
@@ -103,10 +106,14 @@ serve(async (req) => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Gemini API error:', JSON.stringify(errorData));
-      throw new Error(`Gemini API error: ${errorData.error?.message || JSON.stringify(errorData)}`);
+      return new Response(
+        JSON.stringify({ error: `Gemini API error: ${errorData.error?.message || JSON.stringify(errorData)}` }),
+        { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
+    console.log('Gemini API response structure:', JSON.stringify(data).substring(0, 200) + '...');
     
     // Extract the text from Gemini response using the correct response structure
     const result = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
