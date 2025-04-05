@@ -24,11 +24,14 @@ import {
   Award,
   Settings,
   LogOut,
+  Brain,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardOverview from "@/components/Dashboard/DashboardOverview";
 import StudentsList from "@/components/Dashboard/StudentsList";
+import AIGradingSystem from "@/components/Teacher/AIGrading/AIGradingSystem";
 
 const TeacherDashboard: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -100,6 +103,18 @@ const TeacherDashboard: React.FC = () => {
                     <SidebarMenuButton tooltip="Leaderboard">
                       <Award className="w-4 h-4" />
                       <span>Leaderboard</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="AI Tutor">
+                      <Bot className="w-4 h-4" />
+                      <span>AI Tutor</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Career Guidance">
+                      <Brain className="w-4 h-4" />
+                      <span>Career Guidance</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -174,10 +189,7 @@ const TeacherDashboard: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="grading">
-                <div className="rounded-lg border p-8 text-center">
-                  <h3 className="text-lg font-medium">AI-Powered Grading</h3>
-                  <p className="text-muted-foreground mt-2">Coming soon</p>
-                </div>
+                <AIGradingSystem />
               </TabsContent>
             </Tabs>
           </main>
