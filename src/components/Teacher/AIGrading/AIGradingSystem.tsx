@@ -11,6 +11,17 @@ import {
   FileImage, RotateCcw, Search, X, Download, 
   BookOpen, Brain, User
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
 interface GradedSubmission {
   id: string;

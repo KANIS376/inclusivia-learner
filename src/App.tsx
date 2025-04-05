@@ -25,59 +25,64 @@ import MessagingSystem from "./components/Teacher/Messaging/MessagingSystem";
 import LiveClassMonitoring from "./components/Teacher/LiveMonitoring/LiveClassMonitoring";
 import LeaderboardComponent from "./components/Teacher/Leaderboard/LeaderboardComponent";
 import CareerGuidanceSystem from "./components/Teacher/CareerGuidance/CareerGuidanceSystem";
+import React from 'react';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/learn" element={<Learn />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/courses/:courseId" element={<CourseDetail />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* Teacher Dashboard Routes */}
-            <Route 
-              path="/teacher" 
-              element={
-                <ProtectedRoute>
-                  <TeacherLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<TeacherDashboardOverview />} />
-              <Route path="students" element={<StudentsList />} />
-              <Route path="assignments" element={<AssignmentManager />} />
-              <Route path="grading" element={<AIGradingSystem />} />
-              <Route path="messages" element={<MessagingSystem />} />
-              <Route path="live-monitoring" element={<LiveClassMonitoring />} />
-              <Route path="leaderboard" element={<LeaderboardComponent />} />
-              <Route path="career-guidance" element={<CareerGuidanceSystem />} />
-            </Route>
-            
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+// Create a new instance of QueryClient inside a component to ensure React hooks work properly
+const App = () => {
+  // Create a client inside the component function
+  const queryClient = new QueryClient();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/learn" element={<Learn />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/courses/:courseId" element={<CourseDetail />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Teacher Dashboard Routes */}
+              <Route 
+                path="/teacher" 
+                element={
+                  <ProtectedRoute>
+                    <TeacherLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<TeacherDashboardOverview />} />
+                <Route path="students" element={<StudentsList />} />
+                <Route path="assignments" element={<AssignmentManager />} />
+                <Route path="grading" element={<AIGradingSystem />} />
+                <Route path="messages" element={<MessagingSystem />} />
+                <Route path="live-monitoring" element={<LiveClassMonitoring />} />
+                <Route path="leaderboard" element={<LeaderboardComponent />} />
+                <Route path="career-guidance" element={<CareerGuidanceSystem />} />
+              </Route>
+              
+              <Route path="/about" element={<About />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
