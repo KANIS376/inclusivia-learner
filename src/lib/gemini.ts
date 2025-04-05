@@ -37,15 +37,25 @@ export async function queryGemini(
       throw new Error(`Failed to call Gemini AI: ${error.message}`);
     }
 
-    if (!data || data.error) {
-      const errorMessage = data?.error || 'Unknown error occurred';
-      console.error('Error in Gemini AI response:', errorMessage);
+    if (!data) {
+      const errorMessage = 'No data received from Gemini AI';
+      console.error(errorMessage);
       toast({
         title: "AI Error",
         description: errorMessage,
         variant: "destructive"
       });
       throw new Error(errorMessage);
+    }
+
+    if (data.error) {
+      console.error('Error in Gemini AI response:', data.error);
+      toast({
+        title: "AI Error",
+        description: data.error,
+        variant: "destructive"
+      });
+      throw new Error(data.error);
     }
 
     console.log(`Successfully received response from Gemini AI (${type})`);
