@@ -1,7 +1,7 @@
 
 // Web Speech API type definitions
 
-interface SpeechRecognitionEventMap {
+export interface SpeechRecognitionEventMap {
   "audioend": Event;
   "audiostart": Event;
   "end": Event;
@@ -15,7 +15,7 @@ interface SpeechRecognitionEventMap {
   "start": Event;
 }
 
-interface SpeechRecognition extends EventTarget {
+export interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   grammars: SpeechGrammarList;
   interimResults: boolean;
@@ -41,40 +41,40 @@ interface SpeechRecognition extends EventTarget {
   stop(): void;
 }
 
-interface SpeechRecognitionStatic {
+export interface SpeechRecognitionStatic {
   prototype: SpeechRecognition;
   new(): SpeechRecognition;
 }
 
-interface SpeechRecognitionErrorEvent extends Event {
+export interface SpeechRecognitionErrorEvent extends Event {
   readonly error: string;
   readonly message: string;
 }
 
-interface SpeechRecognitionEvent extends Event {
+export interface SpeechRecognitionEvent extends Event {
   readonly resultIndex: number;
   readonly results: SpeechRecognitionResultList;
 }
 
-interface SpeechRecognitionResultList {
+export interface SpeechRecognitionResultList {
   readonly length: number;
   item(index: number): SpeechRecognitionResult;
   [index: number]: SpeechRecognitionResult;
 }
 
-interface SpeechRecognitionResult {
+export interface SpeechRecognitionResult {
   readonly isFinal: boolean;
   readonly length: number;
   item(index: number): SpeechRecognitionAlternative;
   [index: number]: SpeechRecognitionAlternative;
 }
 
-interface SpeechRecognitionAlternative {
+export interface SpeechRecognitionAlternative {
   readonly confidence: number;
   readonly transcript: string;
 }
 
-interface SpeechGrammarList {
+export interface SpeechGrammarList {
   readonly length: number;
   addFromString(string: string, weight?: number): void;
   addFromURI(src: string, weight?: number): void;
@@ -82,12 +82,12 @@ interface SpeechGrammarList {
   [index: number]: SpeechGrammar;
 }
 
-interface SpeechGrammar {
+export interface SpeechGrammar {
   src: string;
   weight: number;
 }
 
-interface SpeechSynthesisUtterance extends EventTarget {
+export interface SpeechSynthesisUtterance extends EventTarget {
   lang: string;
   onboundary: ((this: SpeechSynthesisUtterance, ev: SpeechSynthesisEvent) => any) | null;
   onend: ((this: SpeechSynthesisUtterance, ev: SpeechSynthesisEvent) => any) | null;
@@ -103,7 +103,7 @@ interface SpeechSynthesisUtterance extends EventTarget {
   volume: number;
 }
 
-interface SpeechSynthesisEvent extends Event {
+export interface SpeechSynthesisEvent extends Event {
   readonly charIndex: number;
   readonly charLength?: number;
   readonly elapsedTime: number;
@@ -132,5 +132,3 @@ declare global {
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
   }
 }
-
-export {};

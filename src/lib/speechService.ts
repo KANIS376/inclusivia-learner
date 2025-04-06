@@ -1,6 +1,5 @@
-
 // Speech recognition and synthesis service
-import type {} from '../types/speech'; // This imports the type definitions without emitting any JS
+import type { SpeechRecognition } from '../types/speech'; // Import the type directly
 
 class SpeechService {
   private synth: SpeechSynthesis;
