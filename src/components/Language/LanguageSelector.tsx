@@ -30,7 +30,3 @@ const LanguageSelector: React.FC = () => {
 };
 
 export default LanguageSelector;
-
-// Re-export the provider for easier imports
-export { LanguageProvider } from "@/contexts/LanguageContext";
-export { useLanguage } from "@/contexts/LanguageContext";

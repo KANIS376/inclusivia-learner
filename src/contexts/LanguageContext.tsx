@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { getCurrentLanguage, setCurrentLanguage, translateText } from "@/lib/translationService";
 import speechService from "@/lib/speechService";
 import { useToast } from "@/hooks/use-toast";
+import { Language } from "@/types/language";
 
 // Define the context type
 interface LanguageContextType {

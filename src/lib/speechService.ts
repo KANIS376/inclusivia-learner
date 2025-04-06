@@ -1,3 +1,4 @@
+
 // Speech recognition and synthesis service
 import type { SpeechRecognition } from '../types/speech'; // Import the type directly
 
