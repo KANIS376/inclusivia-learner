@@ -1,31 +1,75 @@
 
-import React, { useState } from "react";
-import { Send, Mic, X, Maximize2, Minimize2 } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { Send, Mic, X, Maximize2, Minimize2, Volume2 } from "lucide-react";
+import { useLanguage } from "../Language/LanguageSelector";
+import offlineStorage from "@/lib/offlineStorageService";
+import { translateWithCache } from "@/lib/translationService";
+import { useToast } from "@/hooks/use-toast";
+
+const AI_STORAGE_KEY = "ai_conversation";
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: number;
+  translated?: boolean;
+}
 
 const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState("");
-  const [conversation, setConversation] = useState<
-    Array<{ role: "user" | "assistant"; content: string }>
-  >([
-    {
-      role: "assistant",
-      content: "Hi there! I'm your AI learning assistant. How can I help you today?",
-    },
-  ]);
+  const [conversation, setConversation] = useState<Message[]>([]);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { currentLanguage, speakText, listenForSpeech } = useLanguage();
+  const { toast } = useToast();
   
-  const handleSendMessage = () => {
+  // Load conversation from local storage on component mount
+  useEffect(() => {
+    const savedConversation = offlineStorage.get<Message[]>(AI_STORAGE_KEY);
+    if (savedConversation && savedConversation.length > 0) {
+      setConversation(savedConversation);
+    } else {
+      // Default welcome message
+      const initialMessage: Message = {
+        role: "assistant",
+        content: "Hi there! I'm your AI learning assistant. How can I help you today?",
+        timestamp: Date.now(),
+      };
+      setConversation([initialMessage]);
+      offlineStorage.save(AI_STORAGE_KEY, [initialMessage]);
+    }
+  }, []);
+  
+  // Save conversation to local storage whenever it changes
+  useEffect(() => {
+    if (conversation.length > 0) {
+      offlineStorage.save(AI_STORAGE_KEY, conversation);
+    }
+  }, [conversation]);
+  
+  // Scroll to bottom of conversation when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [conversation]);
+  
+  const handleSendMessage = async () => {
     if (!message.trim()) return;
     
     // Add user message to conversation
-    setConversation([...conversation, { role: "user", content: message }]);
+    const userMessage: Message = {
+      role: "user",
+      content: message,
+      timestamp: Date.now(),
+    };
     
-    // Clear input field
+    setConversation(prev => [...prev, userMessage]);
     setMessage("");
     
     // Simulate AI response (in a real app, this would call an API)
-    setTimeout(() => {
+    setTimeout(async () => {
       const responses = [
         "That's a great question! Let me explain that concept in a simpler way...",
         "I'm happy to help with that. Here's how you can approach this problem...",
@@ -35,10 +79,28 @@ const AIAssistant: React.FC = () => {
       
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
       
-      setConversation((prev) => [
-        ...prev,
-        { role: "assistant", content: randomResponse },
-      ]);
+      // If current language is not English, translate the response
+      let translatedContent = randomResponse;
+      let translated = false;
+      
+      if (currentLanguage !== 'en') {
+        try {
+          translatedContent = await translateWithCache(randomResponse, currentLanguage, 'en');
+          translated = true;
+        } catch (error) {
+          console.error("Translation error:", error);
+          // Continue with original content if translation fails
+        }
+      }
+      
+      const aiMessage: Message = {
+        role: "assistant",
+        content: translatedContent,
+        timestamp: Date.now(),
+        translated,
+      };
+      
+      setConversation(prev => [...prev, aiMessage]);
     }, 1000);
   };
   
@@ -49,11 +111,58 @@ const AIAssistant: React.FC = () => {
     }
   };
   
+  const handleVoiceInput = async () => {
+    if (isListening) return;
+    
+    setIsListening(true);
+    try {
+      await listenForSpeech((transcript) => {
+        setMessage(transcript);
+        setIsListening(false);
+      });
+    } catch (error) {
+      console.error("Speech recognition error:", error);
+      setIsListening(false);
+    }
+  };
+  
+  const handleSpeakMessage = (content: string) => {
+    if (isSpeaking) {
+      // Stop if already speaking
+      speakText("");
+      setIsSpeaking(false);
+    } else {
+      speakText(content);
+      setIsSpeaking(true);
+      
+      // Add a listener to detect when speech is done
+      window.speechSynthesis.onend = () => {
+        setIsSpeaking(false);
+      };
+    }
+  };
+  
+  const clearConversation = () => {
+    const initialMessage: Message = {
+      role: "assistant",
+      content: "Hi there! I'm your AI learning assistant. How can I help you today?",
+      timestamp: Date.now(),
+    };
+    setConversation([initialMessage]);
+    offlineStorage.save(AI_STORAGE_KEY, [initialMessage]);
+    
+    toast({
+      title: "Conversation cleared",
+      description: "Your conversation history has been cleared.",
+    });
+  };
+  
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-primary/90 transition-transform hover:scale-105 z-50"
+        aria-label="Open AI Assistant"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -93,8 +202,21 @@ const AIAssistant: React.FC = () => {
           </div>
           <div className="flex items-center">
             <button
-              onClick={() => setIsMinimized(!isMinimized)}
+              onClick={clearConversation}
               className="p-1 rounded-md hover:bg-white/20 transition-colors"
+              aria-label="Clear conversation"
+              title="Clear conversation"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              </svg>
+            </button>
+            <button
+              onClick={() => setIsMinimized(!isMinimized)}
+              className="p-1 rounded-md hover:bg-white/20 transition-colors ml-1"
+              aria-label={isMinimized ? "Maximize" : "Minimize"}
             >
               {isMinimized ? (
                 <Maximize2 className="h-4 w-4" />
@@ -105,6 +227,7 @@ const AIAssistant: React.FC = () => {
             <button
               onClick={() => setIsOpen(false)}
               className="p-1 rounded-md hover:bg-white/20 transition-colors ml-1"
+              aria-label="Close"
             >
               <X className="h-4 w-4" />
             </button>
@@ -130,9 +253,26 @@ const AIAssistant: React.FC = () => {
                     }`}
                   >
                     <p className="text-sm">{msg.content}</p>
+                    {msg.translated && (
+                      <div className="text-xs mt-1 opacity-70 text-right">
+                        Translated
+                      </div>
+                    )}
                   </div>
+                  {msg.role === "assistant" && (
+                    <button
+                      onClick={() => handleSpeakMessage(msg.content)}
+                      className={`p-1 rounded-full ml-1 transition-colors ${
+                        isSpeaking ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                      aria-label={isSpeaking ? "Stop speaking" : "Speak message"}
+                    >
+                      <Volume2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
             
             {/* Input area */}
@@ -148,10 +288,17 @@ const AIAssistant: React.FC = () => {
                 />
                 <div className="flex pr-2">
                   <button
-                    className="p-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-                    title="Voice input"
+                    onClick={handleVoiceInput}
+                    className={`p-1.5 rounded-full transition-colors ${
+                      isListening
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    title={isListening ? "Listening..." : "Voice input"}
+                    aria-label={isListening ? "Listening..." : "Voice input"}
+                    disabled={isListening}
                   >
-                    <Mic className="h-5 w-5" />
+                    <Mic className={`h-5 w-5 ${isListening ? "animate-pulse" : ""}`} />
                   </button>
                   <button
                     onClick={handleSendMessage}
@@ -161,11 +308,17 @@ const AIAssistant: React.FC = () => {
                         ? "text-primary hover:text-primary/80"
                         : "text-muted-foreground"
                     }`}
+                    aria-label="Send message"
                   >
                     <Send className="h-5 w-5" />
                   </button>
                 </div>
               </div>
+              {isListening && (
+                <div className="text-xs text-center mt-1 text-primary animate-pulse">
+                  Listening... Speak now
+                </div>
+              )}
             </div>
           </>
         )}

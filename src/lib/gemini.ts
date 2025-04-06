@@ -1,120 +1,174 @@
 
-import { supabase } from '@/lib/supabase';
-import { toast } from '@/hooks/use-toast';
+import { supabase } from './supabase';
+import offlineStorage from './offlineStorageService';
 
-type GeminiRequestType = 'grade-submission' | 'career-guidance' | 'general';
+const OFFLINE_RESPONSES_KEY = 'offline_ai_responses';
 
-interface GeminiContext {
-  rubric?: string;
+type QueryOptions = {
+  role?: string;
+  subject?: string;
   maxScore?: number;
-  studentInfo?: {
-    interests: string[];
-    strengths: string[];
-    performance: number;
-  };
+  rubric?: string;
   [key: string]: any;
-}
+};
 
-export async function queryGemini(
-  prompt: string, 
-  type: GeminiRequestType = 'general',
-  context: GeminiContext = {}
-) {
+// Function to query Gemini AI
+export const queryGemini = async (
+  prompt: string,
+  type: string = 'general',
+  context: QueryOptions = {}
+) => {
   try {
-    console.log(`Calling Gemini AI (${type}) with prompt length: ${prompt.length}`);
+    // Check if we're online
+    if (!navigator.onLine) {
+      return getOfflineResponse(prompt, type);
+    }
     
     const { data, error } = await supabase.functions.invoke('gemini-ai', {
       body: { prompt, type, context },
     });
-
+    
     if (error) {
-      console.error('Error calling Gemini AI:', error);
-      toast({
-        title: "AI Error",
-        description: `Failed to call Gemini AI: ${error.message}`,
-        variant: "destructive"
-      });
-      throw new Error(`Failed to call Gemini AI: ${error.message}`);
+      console.error('Gemini invocation error:', error);
+      return { error: error.message };
     }
-
-    if (!data) {
-      const errorMessage = 'No data received from Gemini AI';
-      console.error(errorMessage);
-      toast({
-        title: "AI Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      throw new Error(errorMessage);
-    }
-
-    if (data.error) {
-      console.error('Error in Gemini AI response:', data.error);
-      toast({
-        title: "AI Error",
-        description: data.error,
-        variant: "destructive"
-      });
-      throw new Error(data.error);
-    }
-
-    console.log(`Successfully received response from Gemini AI (${type})`);
+    
+    // Cache successful responses for offline use
+    cacheResponse(prompt, type, data);
+    
     return data;
   } catch (error) {
-    console.error('Error in queryGemini:', error);
-    throw error;
+    console.error('Gemini query error:', error);
+    return { error: error instanceof Error ? error.message : 'Unknown error occurred' };
   }
-}
+};
 
-// For grading student submissions
-export async function gradeSubmission(
+// Function for AI tutor specifically
+export const getTutorResponse = async (prompt: string) => {
+  return queryGemini(prompt, 'tutor', {
+    role: 'tutor',
+    subject: 'general knowledge',
+    style: 'helpful, educational, and concise'
+  });
+};
+
+// Function to grade assignments
+export const gradeSubmission = async (
   submission: string,
   rubric: string,
   maxScore: number = 100
-) {
-  console.log('Grading submission, length:', submission.length);
-  return queryGemini(
-    submission,
-    'grade-submission',
-    { rubric, maxScore }
-  );
-}
+) => {
+  return queryGemini(submission, 'grade-submission', {
+    rubric,
+    maxScore
+  });
+};
 
-// For suggesting career paths
-export async function getCareerGuidance(
-  studentInfo: {
-    name: string;
-    interests: string[];
-    strengths: string[];
-    performance: number;
+// Function for career guidance
+export const getCareerGuidance = async (
+  interests: string,
+  strengths: string,
+  academics: string
+) => {
+  const prompt = `
+    Interests: ${interests}
+    Strengths: ${strengths}
+    Academic Performance: ${academics}
+    
+    Based on the above, suggest suitable career paths.
+  `;
+  
+  return queryGemini(prompt, 'career-guidance');
+};
+
+// Cache successful responses
+const cacheResponse = (prompt: string, type: string, data: any) => {
+  try {
+    const cachedResponses = offlineStorage.get<Array<{
+      prompt: string;
+      type: string;
+      response: any;
+      timestamp: number;
+    }>>(OFFLINE_RESPONSES_KEY) || [];
+    
+    // Limit cache size to 50 items
+    if (cachedResponses.length >= 50) {
+      cachedResponses.shift();
+    }
+    
+    cachedResponses.push({
+      prompt,
+      type,
+      response: data,
+      timestamp: Date.now()
+    });
+    
+    offlineStorage.save(OFFLINE_RESPONSES_KEY, cachedResponses);
+  } catch (error) {
+    console.error('Error caching response:', error);
   }
-) {
-  const prompt = `
-    Student Name: ${studentInfo.name}
-    Interests: ${studentInfo.interests.join(', ')}
-    Strengths: ${studentInfo.strengths.join(', ')}
-    Academic Performance: ${studentInfo.performance}/100
-    
-    Based on this information, suggest suitable career paths.
-  `;
-  
-  console.log('Getting career guidance for:', studentInfo.name);
-  return queryGemini(
-    prompt,
-    'career-guidance',
-    { studentInfo }
-  );
-}
+};
 
-// New function for AI tutoring responses
-export async function getTutorResponse(question: string, subject?: string) {
-  const prompt = `
-    ${subject ? `Subject: ${subject}` : ''}
-    Student Question: ${question}
+// Get offline response using simple similarity matching
+const getOfflineResponse = (prompt: string, type: string) => {
+  try {
+    const cachedResponses = offlineStorage.get<Array<{
+      prompt: string;
+      type: string;
+      response: any;
+      timestamp: number;
+    }>>(OFFLINE_RESPONSES_KEY) || [];
     
-    Provide a helpful, educational response to this question.
-  `;
-  
-  console.log('Getting AI tutor response');
-  return queryGemini(prompt, 'general');
-}
+    // Filter by type
+    const typeResponses = cachedResponses.filter(item => item.type === type);
+    
+    if (typeResponses.length === 0) {
+      return { 
+        result: "I'm currently working offline and don't have any cached responses for this type of question. Please try again when you're back online.",
+        offline: true
+      };
+    }
+    
+    // Simple word matching to find most similar prompt
+    const promptWords = prompt.toLowerCase().split(/\W+/).filter(w => w.length > 3);
+    
+    let bestMatch = null;
+    let highestScore = 0;
+    
+    for (const item of typeResponses) {
+      const itemWords = item.prompt.toLowerCase().split(/\W+/).filter(w => w.length > 3);
+      let matchScore = 0;
+      
+      for (const word of promptWords) {
+        if (itemWords.includes(word)) {
+          matchScore++;
+        }
+      }
+      
+      if (matchScore > highestScore) {
+        highestScore = matchScore;
+        bestMatch = item;
+      }
+    }
+    
+    // If we found a reasonable match (at least 2 important words match)
+    if (bestMatch && highestScore >= 2) {
+      return {
+        ...bestMatch.response,
+        offline: true
+      };
+    }
+    
+    // Fallback to most recent response of same type
+    return {
+      result: "I'm working offline right now and don't have a good match for your question. Here's a suggestion: try asking about something you've discussed before, or reconnect when you're back online.",
+      offline: true
+    };
+  } catch (error) {
+    console.error('Error retrieving offline response:', error);
+    return { 
+      result: "I'm currently in offline mode and couldn't retrieve a cached response. Please try again when you're online.",
+      offline: true
+    };
+  }
+};

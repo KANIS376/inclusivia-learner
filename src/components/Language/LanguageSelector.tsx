@@ -1,6 +1,97 @@
 
-import React, { useState } from "react";
-import { Globe, Check, ChevronDown } from "lucide-react";
+import React, { useState, useEffect, createContext, useContext } from "react";
+import { Globe, Check, ChevronDown, Volume2, Mic, X } from "lucide-react";
+import { supportedLanguages, setCurrentLanguage, getCurrentLanguage } from "@/lib/translationService";
+import speechService from "@/lib/speechService";
+import { useToast } from "@/hooks/use-toast";
+
+// Create a context to provide language throughout the app
+interface LanguageContextType {
+  currentLanguage: string;
+  changeLanguage: (code: string) => void;
+  speakText: (text: string) => void;
+  listenForSpeech: (callback: (text: string) => void) => Promise<void>;
+  translateUI: boolean;
+  setTranslateUI: (translate: boolean) => void;
+}
+
+export const LanguageContext = createContext<LanguageContextType>({
+  currentLanguage: "en",
+  changeLanguage: () => {},
+  speakText: () => {},
+  listenForSpeech: async () => {},
+  translateUI: true,
+  setTranslateUI: () => {},
+});
+
+export const useLanguage = () => useContext(LanguageContext);
+
+export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  const [currentLanguage, setLanguage] = useState<string>(getCurrentLanguage());
+  const [translateUI, setTranslateUI] = useState<boolean>(
+    localStorage.getItem('translateUI') !== 'false'
+  );
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    localStorage.setItem('translateUI', translateUI.toString());
+  }, [translateUI]);
+  
+  const changeLanguage = (code: string) => {
+    setLanguage(code);
+    setCurrentLanguage(code);
+  };
+  
+  const speakText = (text: string) => {
+    if (!speechService.isSpeechSynthesisSupported()) {
+      toast({
+        title: "Speech not supported",
+        description: "Text-to-speech is not supported in your browser.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    speechService.speak(text, currentLanguage);
+  };
+  
+  const listenForSpeech = async (callback: (text: string) => void) => {
+    if (!speechService.isSpeechRecognitionSupported()) {
+      toast({
+        title: "Speech recognition not supported",
+        description: "Speech-to-text is not supported in your browser.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      await speechService.listen(callback, currentLanguage);
+    } catch (error) {
+      console.error("Speech recognition error:", error);
+      toast({
+        title: "Speech recognition error",
+        description: error instanceof Error ? error.message : "Failed to recognize speech",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const contextValue = {
+    currentLanguage,
+    changeLanguage,
+    speakText,
+    listenForSpeech,
+    translateUI,
+    setTranslateUI,
+  };
+  
+  return (
+    <LanguageContext.Provider value={contextValue}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
 
 interface Language {
   code: string;
@@ -8,23 +99,15 @@ interface Language {
   nativeName: string;
 }
 
-const languages: Language[] = [
-  { code: "en", name: "English", nativeName: "English" },
-  { code: "hi", name: "Hindi", nativeName: "हिन्दी" },
-  { code: "ta", name: "Tamil", nativeName: "தமிழ்" },
-  { code: "te", name: "Telugu", nativeName: "తెలుగు" },
-  { code: "ml", name: "Malayalam", nativeName: "മലയാളം" },
-  { code: "kn", name: "Kannada", nativeName: "ಕನ್ನಡ" },
-];
-
 const LanguageSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(languages[0]);
+  const { currentLanguage, changeLanguage, translateUI, setTranslateUI } = useLanguage();
+  
+  const selectedLanguage = supportedLanguages.find(lang => lang.code === currentLanguage) || supportedLanguages[0];
   
   const handleSelectLanguage = (language: Language) => {
-    setSelectedLanguage(language);
+    changeLanguage(language.code);
     setIsOpen(false);
-    // Here you would implement the actual language change logic
   };
   
   return (
@@ -33,6 +116,7 @@ const LanguageSelector: React.FC = () => {
         type="button"
         className="flex items-center space-x-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Select language"
       >
         <Globe className="h-4 w-4" />
         <span className="hidden sm:inline">{selectedLanguage.name}</span>
@@ -40,9 +124,29 @@ const LanguageSelector: React.FC = () => {
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg glass z-50 animate-fade-in">
+        <div className="absolute right-0 mt-2 w-64 rounded-md shadow-lg glass z-50 animate-fade-in">
           <div className="py-1" role="menu" aria-orientation="vertical">
-            {languages.map((language) => (
+            <div className="px-4 py-2 text-sm font-medium border-b border-border/50">
+              <div className="flex items-center justify-between mb-2">
+                <span>Language Settings</span>
+                <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-2 text-xs">
+                <input 
+                  type="checkbox"
+                  id="translate-ui"
+                  checked={translateUI}
+                  onChange={(e) => setTranslateUI(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <label htmlFor="translate-ui">Translate interface</label>
+              </div>
+            </div>
+            
+            {supportedLanguages.map((language) => (
               <button
                 key={language.code}
                 className="w-full text-left px-4 py-2 text-sm hover:bg-accent/50 transition-colors flex items-center justify-between"
@@ -52,8 +156,9 @@ const LanguageSelector: React.FC = () => {
                 <div className="flex items-center">
                   <span className="mr-1.5 text-xs opacity-70">{language.code.toUpperCase()}</span>
                   <span>{language.name}</span>
+                  <span className="ml-1.5 text-xs text-muted-foreground">({language.nativeName})</span>
                 </div>
-                {selectedLanguage.code === language.code && (
+                {currentLanguage === language.code && (
                   <Check className="h-4 w-4 text-primary" />
                 )}
               </button>

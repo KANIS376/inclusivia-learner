@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { LanguageProvider } from "./components/Language/LanguageSelector";
 import Index from "./pages/Index";
 import Learn from "./pages/Learn";
 import Courses from "./pages/Courses";
@@ -36,49 +37,51 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/learn" element={<Learn />} />
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/courses/:courseId" element={<CourseDetail />} />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Teacher Dashboard Routes */}
-              <Route 
-                path="/teacher" 
-                element={
-                  <ProtectedRoute>
-                    <TeacherLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<TeacherDashboardOverview />} />
-                <Route path="students" element={<StudentsList />} />
-                <Route path="assignments" element={<AssignmentManager />} />
-                <Route path="grading" element={<AIGradingSystem />} />
-                <Route path="messages" element={<MessagingSystem />} />
-                <Route path="live-monitoring" element={<LiveClassMonitoring />} />
-                <Route path="leaderboard" element={<LeaderboardComponent />} />
-                <Route path="career-guidance" element={<CareerGuidanceSystem />} />
-              </Route>
-              
-              <Route path="/about" element={<About />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <LanguageProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/courses/:courseId" element={<CourseDetail />} />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Teacher Dashboard Routes */}
+                <Route 
+                  path="/teacher" 
+                  element={
+                    <ProtectedRoute>
+                      <TeacherLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<TeacherDashboardOverview />} />
+                  <Route path="students" element={<StudentsList />} />
+                  <Route path="assignments" element={<AssignmentManager />} />
+                  <Route path="grading" element={<AIGradingSystem />} />
+                  <Route path="messages" element={<MessagingSystem />} />
+                  <Route path="live-monitoring" element={<LiveClassMonitoring />} />
+                  <Route path="leaderboard" element={<LeaderboardComponent />} />
+                  <Route path="career-guidance" element={<CareerGuidanceSystem />} />
+                </Route>
+                
+                <Route path="/about" element={<About />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </LanguageProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
