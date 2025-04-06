@@ -1,5 +1,6 @@
 
 // Speech recognition and synthesis service
+import type {} from '../types/speech'; // This imports the type definitions without emitting any JS
 
 class SpeechService {
   private synth: SpeechSynthesis;
@@ -14,10 +15,12 @@ class SpeechService {
     // Initialize speech recognition if supported
     if (this.isRecognitionSupported) {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-      this.recognition = new SpeechRecognitionAPI();
-      if (this.recognition) {
-        this.recognition.continuous = false;
-        this.recognition.interimResults = false;
+      if (SpeechRecognitionAPI) {
+        this.recognition = new SpeechRecognitionAPI();
+        if (this.recognition) {
+          this.recognition.continuous = false;
+          this.recognition.interimResults = false;
+        }
       }
     }
     
