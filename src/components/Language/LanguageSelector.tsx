@@ -38,6 +38,8 @@ export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ childr
   }, [translateUI]);
   
   const changeLanguage = (code: string) => {
+    if (code === currentLanguage) return;
+    
     setLanguage(code);
     setCurrentLanguage(code);
     
@@ -45,10 +47,13 @@ export const LanguageProvider: React.FC<{children: React.ReactNode}> = ({ childr
     toast({
       title: "Language changed",
       description: `UI language set to ${supportedLanguages.find(lang => lang.code === code)?.name || code}`,
+      duration: 3000,
     });
     
     // Force a page reload to apply translations
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
   
   const speakText = (text: string) => {
@@ -124,6 +129,7 @@ const LanguageSelector: React.FC = () => {
     toast({
       title: "Changing language...",
       description: `Switching to ${language.name}`,
+      duration: 3000,
     });
     
     changeLanguage(language.code);
