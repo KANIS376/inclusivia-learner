@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Mic, X, Maximize2, Minimize2, Volume2 } from "lucide-react";
 import { useLanguage } from "../Language/LanguageSelector";
@@ -26,13 +25,11 @@ const AIAssistant: React.FC = () => {
   const { currentLanguage, speakText, listenForSpeech } = useLanguage();
   const { toast } = useToast();
   
-  // Load conversation from local storage on component mount
   useEffect(() => {
     const savedConversation = offlineStorage.get<Message[]>(AI_STORAGE_KEY);
     if (savedConversation && savedConversation.length > 0) {
       setConversation(savedConversation);
     } else {
-      // Default welcome message
       const initialMessage: Message = {
         role: "assistant",
         content: "Hi there! I'm your AI learning assistant. How can I help you today?",
@@ -43,14 +40,12 @@ const AIAssistant: React.FC = () => {
     }
   }, []);
   
-  // Save conversation to local storage whenever it changes
   useEffect(() => {
     if (conversation.length > 0) {
       offlineStorage.save(AI_STORAGE_KEY, conversation);
     }
   }, [conversation]);
   
-  // Scroll to bottom of conversation when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation]);
@@ -58,7 +53,6 @@ const AIAssistant: React.FC = () => {
   const handleSendMessage = async () => {
     if (!message.trim()) return;
     
-    // Add user message to conversation
     const userMessage: Message = {
       role: "user",
       content: message,
@@ -68,7 +62,6 @@ const AIAssistant: React.FC = () => {
     setConversation(prev => [...prev, userMessage]);
     setMessage("");
     
-    // Simulate AI response (in a real app, this would call an API)
     setTimeout(async () => {
       const responses = [
         "That's a great question! Let me explain that concept in a simpler way...",
@@ -79,7 +72,6 @@ const AIAssistant: React.FC = () => {
       
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
       
-      // If current language is not English, translate the response
       let translatedContent = randomResponse;
       let translated = false;
       
@@ -89,7 +81,6 @@ const AIAssistant: React.FC = () => {
           translated = true;
         } catch (error) {
           console.error("Translation error:", error);
-          // Continue with original content if translation fails
         }
       }
       
@@ -128,17 +119,17 @@ const AIAssistant: React.FC = () => {
   
   const handleSpeakMessage = (content: string) => {
     if (isSpeaking) {
-      // Stop if already speaking
       speakText("");
       setIsSpeaking(false);
     } else {
       speakText(content);
       setIsSpeaking(true);
       
-      // Add a listener to detect when speech is done
-      window.speechSynthesis.onend = () => {
+      const handleSpeechEnd = () => {
         setIsSpeaking(false);
       };
+      
+      document.addEventListener('speechend', handleSpeechEnd, { once: true });
     }
   };
   
@@ -192,7 +183,6 @@ const AIAssistant: React.FC = () => {
       }`}
     >
       <div className="glass rounded-2xl overflow-hidden shadow-xl border border-white/20 h-full flex flex-col">
-        {/* Header */}
         <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between bg-primary/5">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -236,7 +226,6 @@ const AIAssistant: React.FC = () => {
         
         {!isMinimized && (
           <>
-            {/* Conversation area */}
             <div className="flex-1 overflow-y-auto p-4">
               {conversation.map((msg, index) => (
                 <div
@@ -275,7 +264,6 @@ const AIAssistant: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
             
-            {/* Input area */}
             <div className="p-3 border-t border-border/50">
               <div className="flex items-center rounded-full bg-background border border-input focus-within:ring-1 focus-within:ring-primary focus-within:border-primary overflow-hidden">
                 <textarea

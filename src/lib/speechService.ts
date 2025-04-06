@@ -15,8 +15,10 @@ class SpeechService {
     if (this.isRecognitionSupported) {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognitionAPI();
-      this.recognition.continuous = false;
-      this.recognition.interimResults = false;
+      if (this.recognition) {
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+      }
     }
     
     // Load available voices
@@ -63,6 +65,14 @@ class SpeechService {
     utterance.lang = languageCode;
     utterance.rate = 1;
     utterance.pitch = 1;
+    
+    // Add an event listener to detect when speech ends
+    utterance.onend = () => {
+      // This event will fire when the utterance finishes speaking
+      // We can dispatch a custom event if needed
+      const event = new Event('speechend');
+      document.dispatchEvent(event);
+    };
     
     this.synth.speak(utterance);
   }
